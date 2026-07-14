@@ -1,0 +1,18 @@
+# job-seeker — Python dependencies (Phase 2 / Phase 3)
+# Install:  python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+
+# Phase 2 — format conversion pipeline (convert/)
+python-docx>=1.1.0      # optional fine-grained DOCX control (pandoc is primary)
+PyYAML>=6.0             # variant mapping rule files
+
+# Phase 3 — browser-assisted application (apply/)
+# dry-run JD fetch (no browser needed)
+beautifulsoup4>=4.12
+requests>=2.31
+
+# Live browser prefill is OPTIONAL — install only for non-dry-run apply:
+#   pip install "playwright>=1.40" && playwright install chromium
+# playwright>=1.40
+
+# Dev / test
+pytest>=7.0

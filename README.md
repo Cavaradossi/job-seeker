@@ -1,8 +1,10 @@
 # job-seeker — 申职器
 
+> **Languages**: [English](README.md) · [简体中文](README.zh-CN.md)
+
 Open-source resume management toolkit: LaTeX template + cross-platform build scripts + Agent Skill for tailoring resumes to job descriptions.
 
-> **Status**: v0.1 — template + build scripts + Skill skeleton. Format conversion (Phase 2) and browser-assisted application (Phase 3) are planned.
+> **Status**: v0.2 — template + build scripts + Skill skeleton + **format conversion pipeline (Phase 2)** + **browser-assisted application (Phase 3)**.
 
 ## What's in this repo
 
@@ -18,6 +20,9 @@ Open-source resume management toolkit: LaTeX template + cross-platform build scr
 | `docs/skill/job-seeker/` | Portable Agent Skill (editor-agnostic). Import into WorkBuddy, Cursor, or use manually. |
 | `.workbuddy/skills/job-seeker/` | WorkBuddy-native Skill (auto-loads when you clone this repo in WorkBuddy). |
 | `.github/workflows/build-resumes.yml` | CI: compiles the template sample on push/PR. |
+| `convert/` | **Phase 2** — format conversion pipeline (MD ↔ DOCX ↔ PDF ↔ LaTeX) via pandoc + xelatex, adapter pattern. See [`convert/README.md`](convert/README.md). |
+| `apply/` | **Phase 3** — browser-assisted application: read JD → recommend variant → prefill form → human-in-the-loop submit → tracker. See [`apply/README.md`](apply/README.md). |
+| `requirements.txt` | Python deps for `convert/` and `apply/` (`pip install -r requirements.txt`). |
 
 ## Quick start
 
@@ -60,7 +65,7 @@ The Skill teaches an AI agent the resume-editing workflow: read experience bank 
 The Skill enforces honesty rules to prevent resume inflation:
 
 - **§6.1 Content authenticity**: no invented metrics, no inflated titles
-- **§6.2 Skills-line discipline**: no RAG/Agent buzzwords in Skills section
+- **§6.2 Skills-line discipline**: Skills section stays a short keyword index — no project-specific stacks or framework buzzwords
 - **§6.3 Source honesty**: describe projects truthfully, don't anchor on any single one
 - **§6.4 Length**: JD-specific variants target 1 page; full versions may be multi-page
 
@@ -71,8 +76,26 @@ See [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md) §4 for t
 | Phase | Status | Scope |
 |-------|--------|-------|
 | **Phase 1** | ✅ v0.1 | Cross-platform build + Skill skeleton + open-source plan |
-| **Phase 2** | 📋 planned | Format conversion: Markdown ↔ DOCX ↔ PDF ↔ LaTeX (pandoc + python-docx, adapter pattern) |
-| **Phase 3** | 📋 planned | Browser auto-application: read JD → prefill form → human-in-the-loop submit (Playwright, site adapters) |
+| **Phase 2** | ✅ v0.2 | Format conversion: Markdown ↔ DOCX ↔ PDF ↔ LaTeX (pandoc + xelatex, adapter pattern, BFS pipeline) |
+| **Phase 3** | ✅ v0.2 | Browser-assisted application: read JD → prefill form → human-in-the-loop submit (site adapters, confirm gate, audit). Live prefill needs Playwright; dry-run + confirm gate run today. |
+
+### Phase 2 quick start
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+python -m convert --input resume_template/HouJP-en_US-zh_CN.tex --output outputs/sample.pdf
+python -m convert --input resume_template/HouJP-en_US-zh_CN.tex --output outputs/sample.docx
+python -m convert --list-routes
+```
+
+### Phase 3 quick start
+
+```bash
+source .venv/bin/activate
+python -m apply --jd-file apply/samples/sample_jd.html --dry-run          # JD + variant + PDF
+python -m apply --jd-file apply/samples/sample_jd.html --rehearse         # the confirm-gate pause
+python -m apply --url https://example.com/jobs/123 --dry-run              # live HTTP JD fetch
+```
 
 Full plan: [`doc/job_seeker_opensource_plan.md`](doc/job_seeker_opensource_plan.md).
 

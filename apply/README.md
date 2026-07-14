@@ -1,0 +1,107 @@
+# apply/ — browser-assisted application (Phase 3)
+
+Read a JD URL → recommend a resume variant → prefill the application form →
+**PAUSE for human confirmation** → submit → record to the tracker.
+
+## Iron rules (§3 — never violate)
+
+1. **Human-in-the-loop**: `submit()` ALWAYS calls `confirm()` and blocks on its
+   return value. It never auto-submits. No exceptions.
+2. **One adapter per site**: `boss_zhipin`, `linkedin`, `workday_generic`
+   (Workday/Greenhouse/Lever/plain HTML). No monolithic scraper.
+3. **Audit log**: every operation appends a row to
+   `outputs/job_application_tracker.csv` and a line to `history/apply_<date>.log`.
+4. **ToS compliance**: sites whose ToS prohibit automation set
+   `tos_blocks_automation = True` → the CLI degrades to "open page + show
+   prefill data" (user copies manually). On any automation failure, same degrade.
+5. **Credentials**: read from env vars (`JOB_SEEKER_NAME` / `JOB_SEEKER_EMAIL` /
+   `JOB_SEEKER_PHONE`) or a `--profile` JSON file. Never stored in the repo.
+
+## Layout
+
+```
+apply/
+├── adapters/
+│   ├── base.py                # SiteAdapter ABC + JDText: read_jd / prefill_form / submit
+│   ├── workday_generic.py     # Workday / Greenhouse / Lever / plain HTML (requests + bs4 + Playwright)
+│   ├── boss_zhipin.py         # Boss直聘 (tos_blocks_automation=True)
+│   └── linkedin.py            # LinkedIn  (tos_blocks_automation=True)
+├── mapping/
+│   ├── jd_to_variant.py       # rule-based JD keywords -> variant name
+│   └── variant_renderer.py    # locate .tex -> compile PDF (reuses convert.LatexToPdf)
+├── confirm.py                 # the human-in-the-loop gate (blocks; safe in CI)
+├── audit.py                   # tracker CSV + history debrief
+├── cli.py                     # python -m apply ...
+├── samples/sample_jd.html     # offline JD for dry-run/rehearse demos
+└── tests/test_apply.py        # 15 tests, no network/browser needed
+```
+
+## Usage
+
+```bash
+source .venv/bin/activate
+
+# 1) Dry run — fetch JD + recommend variant + render PDF. No browser, no submit.
+python -m apply --jd-file apply/samples/sample_jd.html --dry-run
+python -m apply --url https://example.com/jobs/123 --dry-run
+
+# 2) Rehearse the confirmation gate (no browser; demonstrates the §3.1 pause).
+python -m apply --jd-file apply/samples/sample_jd.html --rehearse
+#   -> blocks at:  [generic] (rehearse) Submit application to ...? [y/N]
+#   type n -> rehearse_cancelled (audited); type y -> rehearse_confirmed (audited)
+
+# 3) Live flow — prefill the form, then BLOCK on confirm(), then submit.
+#    Requires Playwright:  pip install 'playwright>=1.40' && playwright install chromium
+export JOB_SEEKER_NAME="YOUR_NAME"
+export JOB_SEEKER_EMAIL="your-email@example.com"
+export JOB_SEEKER_PHONE="+86-000-0000-0000"
+python -m apply --url https://boards.greenhouse.io/acme/jobs/123 --variant resume_job_en
+
+# Tests
+pytest apply/tests/
+```
+
+## How the human-in-the-loop gate works
+
+`apply/confirm.py::confirm()` is the single chokepoint:
+
+- **Interactive**: blocks on `input("[y/N] ")`. Returns `True` only on explicit `y`/`yes`.
+- **Scripted** (CI/tests): `JOB_SEEKER_CONFIRM=yes|no` auto-answers.
+- **Non-tty stdin**: defaults to **NO** (never hangs, never silently submits).
+
+`submit()` calls `confirm()` *before* clicking anything. A unit test
+(`test_submit_calls_confirm_and_blocks`) asserts the gate is always invoked.
+
+## What runs now vs. what needs Playwright
+
+| Mode | JD fetch | Variant recommend | PDF render | Confirm gate | Form prefill | Real submit |
+|------|---------|-------------------|-----------|--------------|--------------|-------------|
+| `--dry-run` | ✅ (HTTP / file) | ✅ | ✅ (if variant .tex exists) | — | — | — |
+| `--rehearse` | ✅ | ✅ | ✅ | ✅ (blocks) | — | — |
+| default (no Playwright) | ✅ | ✅ | ✅ | — | degrades → show data + open browser | — |
+| default (Playwright installed, ToS OK) | ✅ | ✅ | ✅ | ✅ (blocks) | ✅ | ✅ (after confirm) |
+| default (ToS blocks) | ✅ | ✅ | ✅ | — | degrades → show data + open browser | — |
+
+So the safety-critical path (the confirm gate) and the dry-run are fully
+runnable today. True form prefill + submit require Playwright + a ToS-permissive
+site; otherwise the tool honestly degrades.
+
+## Variant resolution
+
+`jd_to_variant.recommend_variant(jd)` returns a variant **name** (the `.tex`
+stem, matching the SKILL §3 table): `resume_backend_ops`, `resume_ai_eval`,
+`resume_web3`, `resume_job_en` (default EN), `resume-zh_job` (default CN).
+
+`variant_renderer.find_variant_tex()` searches `LaTeX_Resume_CN/`,
+`LaTeX_Resume_EN/`, then `resume_template/`. The public template repo ships
+only the upstream sample (`resume_template/HouJP-en_US-zh_CN.tex`); add your
+own variants to `LaTeX_Resume_*/` in your private fork. If a recommended
+variant is missing, the CLI prints a clear note and continues (dry-run still
+succeeds).
+
+## Tracker schema
+
+See [`doc/tracker_schema.md`](../doc/tracker_schema.md). Status values written
+by `apply`: `dry_run`, `degraded`, `submitted`, `user_cancelled`,
+`rehearse_confirmed`, `rehearse_cancelled`. The tracker and `history/` are
+gitignored — they hold real company names and dates.

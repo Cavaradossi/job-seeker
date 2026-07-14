@@ -3,6 +3,10 @@ resume_template/*.aux
 resume_template/*.log
 resume_template/*.out
 resume_template/*.pdf
+resume_template/*.xdv
+resume_template/*.fls
+resume_template/*.fdb_latexmk
+resume_template/*.synctex.gz
 LaTeX_Resume_CN/*.aux
 LaTeX_Resume_CN/*.log
 LaTeX_Resume_CN/*.out
@@ -29,9 +33,22 @@ Thumbs.db
 # WorkBuddy runtime (keep .workbuddy/skills/ tracked, ignore caches)
 .workbuddy/cache/
 .workbuddy/tmp/
+.workbuddy/memory/
 
 # Personal data (never commit)
 doc/experience_bank.md
 doc/jd_mapping/
 history/
 meessage/
+
+# Python (Phase 2/3)
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# convert/ apply/ scratch outputs (keep source, ignore stray build files)
+convert/_scratch/
+apply/_scratch/

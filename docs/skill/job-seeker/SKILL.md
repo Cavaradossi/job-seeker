@@ -104,23 +104,23 @@ Full variant guidance including openers and DM templates: see `references/varian
 ### §6.1 Content authenticity
 
 - Do not invent metrics. Numbers in bullets must come from real work.
-- Do not inflate titles. If the role was "Technical Lead" managing the software lifecycle, that's the title — not "Architect" or "Staff Engineer".
-- ETL work: "developed and maintained multiple PDI on existing platform" — not "built greenfield data platform from scratch".
-- RAG: write real retrieval parameters (TopK, similarity threshold, chunk strategy); do not claim capabilities not implemented.
-- Dify: "Workflow POC (4–5 nodes)" — not "Autonomous Agent".
+- Do not inflate titles. Use the actual role title (e.g. "Technical Lead" managing a software lifecycle) — not "Architect" or "Staff Engineer".
+- Describe scope accurately: "maintained and extended an existing platform" — not "built it from scratch".
+- For any ML / retrieval work, cite the real parameters you actually used (e.g. TopK, similarity threshold, chunk strategy); do not claim capabilities not implemented.
+- Distinguish a small POC (a few connected nodes/steps) from a production "autonomous agent" — don't inflate a prototype into a system.
 
 ### §6.2 Skills-line discipline
 
-- Skills section lists **languages, AI tools, dev toolchain** only.
-- Do **not** put RAG stack, Agent workflows, or framework buzzwords in Skills — those belong in project bullets.
-- Do **not** write Codex/Cursor/Trae as "programming languages".
-- Backend/ops variants still list AI tools (Cursor/Codex/Trae) for daily efficiency.
+- Skills section lists **languages, dev toolchain, and general-purpose productivity tools** only — kept short and scannable.
+- Do **not** put project-specific tech stacks, domain frameworks, or workflow architectures in Skills — those belong in the relevant project bullet where the context lives.
+- Do **not** pass off AI coding assistants or editors as programming languages (list them as tools, if at all — never where a language belongs).
+- Treat the Skills line as a keyword index recruiters skim, not a place to signal seniority or niche expertise.
 
 ### §6.3 Source honesty (project framing)
 
-- When referencing personal open-source projects (e.g. an open-core toolkit), describe them by what they actually do, not aspirationally.
-- Do not anchor the resume on any single side project — it is one of multiple data points.
-- Example framing for a research-workflow toolkit: "open-core framework for reproducible research workflows" — **do not** call it a "trading system", "live trading framework", "production signals product", or "market-specific toolkit".
+- When referencing personal open-source projects, describe them by what they actually do — not aspirationally.
+- Do not anchor the resume on any single side project; it is one of multiple data points.
+- Pick a neutral, accurate descriptor and avoid inflating scope or domain (don't reframe a small tool as a "platform", "system", or "product" unless it truly is).
 - Cite the real GitHub URL on its own line; don't crowd it into a long bullet (prevents PDF line-wrap issues).
 
 ### §6.4 Length

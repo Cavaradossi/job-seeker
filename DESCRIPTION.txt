@@ -1,0 +1,4 @@
+# GitHub repository "About" description (≤ 350 characters).
+# Copy the single line below into the repo description field.
+
+Open-source resume toolkit (申职器): cross-platform LaTeX build with bundled CJK fonts, an Agent Skill for JD-tailored resumes, a Markdown↔DOCX↔PDF↔LaTeX conversion pipeline, and human-in-the-loop browser-assisted job application. Honesty-bound rules prevent resume inflation.
