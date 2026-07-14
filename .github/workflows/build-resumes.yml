@@ -1,0 +1,67 @@
+name: build-resumes
+
+# Compiles the resume_template sample on push/PR to main.
+# Uses a TeX Live full Docker image to avoid the ~10 min apt install on every run.
+# Adobe CJK fonts are bundled in resume_template/fonts/zh_CN-Adobe/ — no font install needed.
+#
+# For v0.1, this compiles the upstream sample (HouJP-en_US-zh_CN.tex) as a smoke test.
+# When you add your own LaTeX_Resume_CN/ and LaTeX_Resume_EN/ directories, switch to
+# running ./build_resumes.sh instead (see the commented step below).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/xu-cheng/texlive-full:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify xelatex
+        run: xelatex --version
+
+      - name: Verify Adobe CJK fonts present
+        run: |
+          echo "Adobe fonts in resume_template/fonts/zh_CN-Adobe/:"
+          ls -la resume_template/fonts/zh_CN-Adobe/ || true
+
+      - name: Compile sample resume
+        run: |
+          cd resume_template
+          xelatex -interaction=nonstopmode -halt-on-error HouJP-en_US-zh_CN.tex
+          cd ..
+          echo "=== Compiled PDF ==="
+          ls -la resume_template/HouJP-en_US-zh_CN.pdf
+
+      # When you have LaTeX_Resume_CN/ and LaTeX_Resume_EN/ directories, uncomment this:
+      # - name: Build all resumes
+      #   run: |
+      #     chmod +x ./build_resumes.sh
+      #     ./build_resumes.sh
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-sample-${{ github.sha }}
+          path: resume_template/HouJP-en_US-zh_CN.pdf
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.sha }}
+          path: resume_template/*.log
+          retention-days: 7
+          if-no-files-found: ignore
