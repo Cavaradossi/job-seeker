@@ -7,14 +7,12 @@ resume_template/*.xdv
 resume_template/*.fls
 resume_template/*.fdb_latexmk
 resume_template/*.synctex.gz
-LaTeX_Resume_CN/*.aux
-LaTeX_Resume_CN/*.log
-LaTeX_Resume_CN/*.out
-LaTeX_Resume_CN/*.pdf
-LaTeX_Resume_EN/*.aux
-LaTeX_Resume_EN/*.log
-LaTeX_Resume_EN/*.out
-LaTeX_Resume_EN/*.pdf
+
+# Private resume variants — YOUR personalized .tex live here and must NEVER be
+# committed (they hold personal data). The whole directories are gitignored.
+# `python -m job_seeker init` scaffolds them locally from resume_template/.
+LaTeX_Resume_CN/
+LaTeX_Resume_EN/
 
 # Outputs (only track the README)
 outputs/*

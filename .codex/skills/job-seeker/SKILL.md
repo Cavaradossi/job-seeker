@@ -174,6 +174,27 @@ Full openers/DM templates: `references/variant_playbook.md`.
 - JD variants + EN general: **1 page** (`enumitem` + tight bullets)
 - Full CN with research section: multi-page OK
 
+### §4.5 Drafter–reviewer pass (model-agnostic)
+
+When tailoring a variant to a JD, do **two passes**, not one. This is pure
+prompt craft — it works under any editor (Cursor / Codex / WorkBuddy) and
+requires no paid subscription or specific model.
+
+1. **Drafter.** Produce the tailored `.tex` variant from the chosen template +
+   experience bank, cutting/reweighting bullets for this JD. Keep it honest (§4.1).
+2. **Reviewer (separate turn / fresh context).** Re-read ONLY the JD + the
+   drafted variant. Critique, do not flatter:
+   - Weak verbs, clichés, filler ("utilized", "leveraged", "various").
+   - Bullets that read stronger than the underlying work (§4.1 inflation).
+   - JD keywords present in name only (keyword-stuffing without substance).
+   - Orphans, overflow, >1 page where §4.4 says 1 page.
+   - Missing quantification where real numbers exist.
+3. **Revise.** Apply only the critiques that keep the bullet truthful. If a
+   critique would inflate, reject it and note why.
+
+The reviewer pass is advisory — it never auto-edits. It runs the same honesty
+rules as the drafter; its job is to catch what a single pass misses.
+
 ## 5. Build & verify
 
 ```bash

@@ -98,3 +98,28 @@ jobs:
           path: resume_template/*.log
           retention-days: 7
           if-no-files-found: ignore
+
+  # Governance: skill mirrors must stay in sync with docs/skill/job-seeker/
+  # (the canonical source). See docs/GOVERNANCE.md. Runs the sync script and
+  # fails if it would change any tracked mirror (.cursor / .codex / .workbuddy).
+  skill-mirror-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Re-sync skill mirrors from docs/skill/job-seeker/
+        run: |
+          chmod +x scripts/sync_skills.sh
+          ./scripts/sync_skills.sh
+
+      - name: Fail if mirrors drifted from the canonical source
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Skill mirrors (.cursor/.codex/.workbuddy) are out of sync with docs/skill/job-seeker/. Run scripts/sync_skills.sh locally and commit (see docs/GOVERNANCE.md)."
+            git diff --stat
+            exit 1
+          fi
+          echo "Skill mirrors are in sync with docs/skill/job-seeker/."

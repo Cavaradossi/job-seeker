@@ -6,6 +6,12 @@
 
 `MIT` · 跨平台（macOS · Linux · Windows）· LaTeX + pandoc + Playwright
 
+> **申职器不一样在哪。** 多数 AI 求职工具绑定付费 agent 订阅、抓取招聘
+> 网站、自动代投。申职器反其道而行：**离线运行**、**无需订阅**、**不抓取
+> 任何数据**、**绝不自动提交**——你带任意格式的简历进来，得到干净的 CJK
+> LaTeX / PDF / DOCX，全程自己掌控。配你已经在用的 AI 编辑器即可（Cursor /
+> Codex / WorkBuddy）。
+
 ---
 
 ## ✨ 为什么用申职器？
@@ -27,6 +33,37 @@
 - **投递 tracker**（CSV）+ 历史审计日志，每次操作都留痕。
 - **Agent Skill**（Codex / Cursor / WorkBuddy / 通用编辑器），固化工作流与诚实边界。
 - **CI** 在每次 push/PR 时编译样例简历。
+
+## 🧭 工作原理
+
+```mermaid
+flowchart TD
+    subgraph ANY["1 · 带任意格式进来"]
+        direction LR
+        tex[".tex"]:::fmt
+        md[".md"]:::fmt
+        docx[".docx"]:::fmt
+        pdf[".pdf"]:::fmt
+    end
+    conv["convert/ — 任意互转<br/>10 条直连边 · BFS 路由"]:::core
+    ANY --> conv
+    bank["experience_bank.md<br/>（私有，已 gitignore）"] --> vars["LaTeX_Resume_CN / EN<br/>（你的变体）"]
+    conv --> vars
+    jd["职位描述 JD<br/>URL · 粘贴 · 文件"] --> rec["recommend_variant<br/>（规则匹配）"]:::core
+    vars --> rend["render_variant → PDF"]:::core
+    rec --> rend
+    rend --> gate{"confirm()<br/>人工确认闸门"}:::gate
+    gate -- "y" --> app["apply/<br/>预填表单——绝不自动提交"]:::core
+    gate -- "N" --> cancel["取消"]
+    app --> track["tracker.csv + history/"]:::core
+
+    classDef fmt fill:#eef,stroke:#88a,color:#225;
+    classDef core fill:#e9f7ec,stroke:#5b9,color:#163;
+    classDef gate fill:#fdeef0,stroke:#e88,color:#721;
+```
+
+四种格式自由互转；PDF 仅以文本层进入（PyMuPDF）。投递路径有闸门——没有你的
+明确 `y`，绝不发生任何提交。
 
 ## 📦 安装
 
@@ -171,6 +208,10 @@ LaTeX ↔ DOCX 本质上有损：简历专属宏（`\name`、`\centerline`、`\d
 2. 遵守 [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md) §6 的**诚实边界**——不注水、不编造指标。
 3. 在 `convert/tests/` 或 `apply/tests/` 下加测试，跑 `pytest`（现有 33 个测试须保持全绿）。
 4. 示例内容用占位符（`YOUR_NAME`、`your-email@example.com`）——绝不放真实个人信息。
+
+## ⭐ Star 历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Cavaradossi/job-seeker&type=Date)](https://star-history.com/#Cavaradossi/job-seeker&Date)
 
 ## 📄 许可证
 

@@ -52,6 +52,31 @@ pytestmark = pytest.mark.skipif(not SAMPLE_TEX.exists(),
                                 reason="sample tex not found")
 
 
+# --- fidelity tiers (no external tools needed) -----------------------------
+
+def test_fidelity_tiers_classified():
+    from convert.adapters.base import Adapter  # noqa: F401
+    from convert.adapters.pdf_to_markdown import PdfToMarkdown
+    from convert.adapters.markdown_to_latex import MarkdownToLatex
+    from convert.adapters.latex_to_docx import LatexToDocx
+    assert MarkdownToLatex.fidelity_tier() == "lossless"
+    assert LatexToDocx.fidelity_tier() == "lossy"
+    assert PdfToMarkdown.fidelity_tier() == "text-only"
+
+
+def test_worse_tier_picks_most_lossy():
+    from convert.adapters.base import Adapter
+    assert Adapter.worse_tier("lossless", "lossy") == "lossy"
+    assert Adapter.worse_tier("lossless", "lossy", "text-only") == "text-only"
+    assert Adapter.worse_tier("lossless") == "lossless"
+
+
+def test_fidelity_matrix_cli_runs():
+    # Exercises the --fidelity-matrix code path end-to-end.
+    from convert.cli import main
+    assert main(["--fidelity-matrix"]) == 0
+
+
 # --- routing (no external tools needed) ------------------------------------
 
 def test_route_tex_to_pdf():

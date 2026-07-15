@@ -10,6 +10,7 @@ If you add a new document, **add a row to the table below** — that rule is enf
 | [`BUILD_MAC.md`](BUILD_MAC.md) | TeX Live + pandoc on macOS/Linux | New users on Apple/Linux |
 | [`BUILD_WINDOWS.md`](BUILD_WINDOWS.md) | MiKTeX + PowerShell on Windows | New users on Windows |
 | [`job_seeker_opensource_plan.md`](job_seeker_opensource_plan.md) | Roadmap, phase breakdown, privacy strategy, and governance direction | Contributors |
+| [`ROADMAP_v0.4.md`](ROADMAP_v0.4.md) | v0.4 optimization plan: narrative, SEO rescue, portals.yaml, cover letter, multi-agent governance | Contributors |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Rules that keep this repo (docs + file tree) from rotting | Contributors / maintainers |
 | [`../scripts/README.md`](../scripts/README.md) | Skill sync scripts (`sync_skills.sh` / `.ps1`) | Contributors |
 

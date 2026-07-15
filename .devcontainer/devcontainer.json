@@ -1,0 +1,23 @@
+{
+  "name": "job-seeker",
+  "build": { "dockerfile": "Dockerfile" },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteEnv": {
+    "PATH": "/home/vscode/.tinytex-bin:${containerEnv:PATH}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "james-yu.latex-workshop",
+        "ms-python.python",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "latex-workshop.latex.recipe.default": "xelatex",
+        "latex-workshop.latex.autoBuild.run": "onSave",
+        "files.eol": "\n"
+      }
+    }
+  },
+  "forwardPorts": []
+}

@@ -19,6 +19,8 @@ from .base import Adapter
 class PdfToMarkdown(Adapter):
     input_format = "pdf"
     output_format = "md"
+    # Text-layer extraction (not a structural round-trip) — its own tier.
+    fidelity = "text-only"
     lossy_note = (
         "PDF has no semantic structure — only text + positions are extracted. "
         "Headings, columns, tables, bullets, fonts, and icons are not reliably "

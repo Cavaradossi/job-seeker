@@ -9,6 +9,38 @@ import argparse
 import sys
 
 from .pipeline import Pipeline, route, _EDGES
+from .adapters.base import Adapter
+
+
+def _print_fidelity_matrix() -> int:
+    """Print the 4x4 fidelity matrix. Routed pairs show the worst tier on path."""
+    exts = ["md", "tex", "docx", "pdf"]
+    glyph = {"lossless": "OK", "lossy": "~", "text-only": "T"}
+    print("Fidelity matrix  (rows = from, cols = to)")
+    print("  Legend: OK = lossless · ~ = lossy · T = text-only · - = same format")
+    print("          (routed pairs show the worst tier along the BFS path)")
+    print()
+    print(f"  {'from\\\\to':>9}  " + "  ".join(f"{e:>5}" for e in exts))
+    for a in exts:
+        cells = []
+        for b in exts:
+            if a == b:
+                cells.append("  -  ")
+                continue
+            try:
+                adapters = route(f"x.{a}", f"y.{b}")
+            except ValueError:
+                cells.append(" n/a ")
+                continue
+            if not adapters:
+                cells.append(" OK  ")
+                continue
+            worst = Adapter.worse_tier(*(cls.fidelity_tier() for cls in adapters))
+            cells.append(f"  {glyph.get(worst, '?')}  ")
+        print(f"  {a:>9}  " + "  ".join(cells))
+    print()
+    print("Per-edge detail:  python -m convert --list-routes")
+    return 0
 
 
 def main(argv=None) -> int:
@@ -20,13 +52,18 @@ def main(argv=None) -> int:
     ap.add_argument("--output", "-o", help="output file path")
     ap.add_argument("--list-routes", action="store_true",
                     help="print supported conversion edges and exit")
+    ap.add_argument("--fidelity-matrix", action="store_true",
+                    help="print the 4x4 fidelity matrix (lossless/lossy/text-only) and exit")
     args = ap.parse_args(argv)
 
     if args.list_routes:
         for (a, b), cls in sorted(_EDGES.items()):
-            note = f"  [LOSSY: {cls.lossy_note}]" if cls.lossy_note else ""
+            note = f"  [{cls.fidelity_tier().upper()}] {cls.lossy_note}" if cls.lossy_note else ""
             print(f"  .{a} -> .{b}  ({cls.__name__}){note}")
         return 0
+
+    if args.fidelity_matrix:
+        return _print_fidelity_matrix()
 
     if not args.input or not args.output:
         ap.error("the following arguments are required: --input/-i, --output/-o "

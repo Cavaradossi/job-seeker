@@ -41,13 +41,12 @@ import re, sys
 from pathlib import Path
 p = Path(sys.argv[1])
 text = p.read_text(encoding="utf-8")
-if "agent_created:" not in text and text.startswith("---"):
-    text = re.sub(
-        r"(^---\n(?:.*\n)*?)(---\n)",
-        r"\1agent_created: true\n\2",
-        text,
-        count=1,
-    )
+# Only modify the YAML frontmatter (first --- ... --- block). The SKILL body
+# mentions "agent_created" in the editor-install table, so a whole-text check
+# would always be True and silently skip the insertion (bug caught by CI).
+m = re.match(r"^(---\n)(.*?\n)(---\n)", text, re.DOTALL)
+if m and "agent_created:" not in m.group(2):
+    text = text[:m.start(2)] + m.group(2) + "agent_created: true\n" + text[m.end(2):]
     p.write_text(text, encoding="utf-8")
 PY
 

@@ -6,6 +6,13 @@
 
 `MIT` · cross-platform (macOS · Linux · Windows) · LaTeX + pandoc + Playwright
 
+> **How job-seeker is different.** Most AI job-search tools bundle a paid agent
+> subscription, scrape job boards, and auto-pilot submissions. job-seeker goes the
+> other way: **offline**, **no subscription**, **scrapes nothing**, and **never
+> auto-submits** — bring a resume in any format, get a clean CJK LaTeX / PDF /
+> DOCX, and stay in control. Works with whatever AI editor you already use
+> (Cursor / Codex / WorkBuddy).
+
 ---
 
 ## ✨ Why job-seeker?
@@ -27,6 +34,37 @@ Sending the same resume to every job gets you filtered out. Hand-tailoring one p
 - **Application tracker** (CSV) + history audit log — every action recorded.
 - **Agent Skill** (Codex / Cursor / WorkBuddy / editor-agnostic) that encodes the workflow and honesty boundaries.
 - **CI** compiles the sample resume on every push/PR.
+
+## 🧭 How it works
+
+```mermaid
+flowchart TD
+    subgraph ANY["1 · Bring any format"]
+        direction LR
+        tex[".tex"]:::fmt
+        md[".md"]:::fmt
+        docx[".docx"]:::fmt
+        pdf[".pdf"]:::fmt
+    end
+    conv["convert/ — any-to-any conversion<br/>10 direct edges · BFS routing"]:::core
+    ANY --> conv
+    bank["experience_bank.md<br/>(private, gitignored)"] --> vars["LaTeX_Resume_CN / EN<br/>(your variants)"]
+    conv --> vars
+    jd["Job description<br/>URL · paste · file"] --> rec["recommend_variant<br/>(rule-based)"]:::core
+    vars --> rend["render_variant → PDF"]:::core
+    rec --> rend
+    rend --> gate{"confirm()<br/>human-in-the-loop"}:::gate
+    gate -- "y" --> app["apply/<br/>prefill form — never auto-submit"]:::core
+    gate -- "N" --> cancel["cancel"]
+    app --> track["tracker.csv + history/"]:::core
+
+    classDef fmt fill:#eef,stroke:#88a,color:#225;
+    classDef core fill:#e9f7ec,stroke:#5b9,color:#163;
+    classDef gate fill:#fdeef0,stroke:#e88,color:#721;
+```
+
+Four formats interconvert freely; PDF enters as text-only (PyMuPDF). The apply
+path is gated — no submission ever happens without your explicit `y`.
 
 ## 📦 Installation
 
@@ -173,6 +211,10 @@ Before opening a PR:
 2. Respect the **honesty boundaries** in [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md) §6 — no resume inflation, no invented metrics.
 3. Add a test under `convert/tests/` or `apply/tests/` and run `pytest` (33 tests should stay green).
 4. Use placeholders (`YOUR_NAME`, `your-email@example.com`) in any example content — never real personal data.
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Cavaradossi/job-seeker&type=Date)](https://star-history.com/#Cavaradossi/job-seeker&Date)
 
 ## 📄 License
 

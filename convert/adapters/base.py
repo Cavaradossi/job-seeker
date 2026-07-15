@@ -26,11 +26,40 @@ class Adapter(abc.ABC):
     output_format: str = ""
     # Human-readable lossiness note. None = intended to be lossless.
     lossy_note: Optional[str] = None
+    # Fidelity tier override. None => inferred from lossy_note
+    # (None -> "lossless", otherwise "lossy"). Set explicitly to "text-only"
+    # for extractors (e.g. PDF -> Markdown via text-layer extraction).
+    fidelity: Optional[str] = None
 
     @abc.abstractmethod
     def convert(self, input_path: str, output_path: str) -> bool:
         """Return True on success, False on failure."""
         ...
+
+    # ---- fidelity reporting (see `convert --fidelity-matrix`) ----
+
+    _TIER_RANK = {"lossless": 0, "lossy": 1, "text-only": 2}
+
+    @classmethod
+    def fidelity_tier(cls) -> str:
+        """Return the fidelity tier: "lossless" | "lossy" | "text-only"."""
+        if cls.fidelity:
+            return cls.fidelity
+        return "lossless" if cls.lossy_note is None else "lossy"
+
+    @classmethod
+    def fidelity_report(cls) -> str:
+        """One-line fidelity summary, e.g. 'lossy: custom macros do not survive'."""
+        tier = cls.fidelity_tier()
+        note = cls.lossy_note or ""
+        return f"{tier}" + (f": {note}" if note else "")
+
+    @classmethod
+    def worse_tier(cls, *tiers: str) -> str:
+        """Return the worst (most lossy) tier among the given tiers."""
+        if not tiers:
+            return "lossless"
+        return max(tiers, key=lambda t: cls._TIER_RANK.get(t, 1))
 
     # ---- shared subprocess / filesystem helpers ----
 
