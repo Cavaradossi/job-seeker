@@ -6,7 +6,8 @@ Portable skill source: **`docs/skill/job-seeker/`**. Sync to editor-specific pat
 
 ```
 docs/skill/job-seeker/          # Edit here first (portable / open-source source)
-├── SKILL.md
+├── SKILL.md                    # English
+├── SKILL.zh-CN.md              # 中文
 ├── references/
 │   ├── master_prompt_extract.md
 │   └── variant_playbook.md
@@ -16,6 +17,12 @@ docs/skill/job-seeker/          # Edit here first (portable / open-source source
 .cursor/skills/job-seeker/        # Cursor (committed — clone & open repo)
 .workbuddy/skills/job-seeker/     # WorkBuddy (add agent_created: true in frontmatter)
 ```
+
+## Codex
+
+Codex uses the repo-level `AGENTS.md` as the agent entry point. Keep this
+portable Skill as the source of truth, and see [`../CODEX.md`](../CODEX.md) for
+Codex prompts, Windows setup notes, and the current MCP boundary.
 
 ## Cursor (recommended for this repo)
 
@@ -37,15 +44,17 @@ User-level: `cp -r docs/skill/job-seeker ~/.workbuddy/skills/job-seeker`
 
 ## Sync after edits
 
-```bash
-# From repo root (macOS / Linux)
-cp docs/skill/job-seeker/SKILL.md .cursor/skills/job-seeker/SKILL.md
-cp docs/skill/job-seeker/checklist.md .cursor/skills/job-seeker/checklist.md
-cp -r docs/skill/job-seeker/references/* .cursor/skills/job-seeker/references/
+**Windows**
 
-cp docs/skill/job-seeker/SKILL.md .workbuddy/skills/job-seeker/SKILL.md
-cp docs/skill/job-seeker/checklist.md .workbuddy/skills/job-seeker/checklist.md
-# Then add agent_created: true to .workbuddy/skills/job-seeker/SKILL.md if overwritten
+```powershell
+.\scripts\sync_skills.ps1
+```
+
+**macOS / Linux**
+
+```bash
+chmod +x scripts/sync_skills.sh
+./scripts/sync_skills.sh
 ```
 
 ## Validation (WorkBuddy)

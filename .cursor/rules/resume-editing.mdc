@@ -1,0 +1,19 @@
+---
+description: Resume editing — read experience bank first, enforce honesty boundaries
+globs: LaTeX_Resume_CN/**/*.tex,LaTeX_Resume_EN/**/*.tex,resume_template/**/*.tex
+alwaysApply: false
+---
+
+# Resume editing (申职器 / job-seeker)
+
+Before changing any `.tex` resume file:
+
+1. Read `docs/experience_bank.md` (create from `docs/experience_bank.example.md` if absent).
+2. Follow `.cursor/skills/job-seeker/SKILL.md` §4 honesty boundaries — no invented metrics or inflated titles.
+3. Skills section: languages + dev toolchain + AI tools only; no RAG/Agent stack keywords.
+4. After edits, compile and check page count:
+   - Windows: `.\build_resumes.ps1` or `xelatex` in `resume_template/`
+   - macOS/Linux: `./build_resumes.sh`
+5. Never copy `.tex` / `resume.cls` into `outputs/`.
+
+For JD tailoring, prefer Plan A (headline-only change). Use placeholders in public examples.

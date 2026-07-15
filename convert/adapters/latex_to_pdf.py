@@ -10,10 +10,18 @@ back to running xelatex twice to settle references/hyperref.
 from __future__ import annotations
 
 import shutil
+import sys
 from pathlib import Path
 
 from .base import Adapter
 from ..tools import resolve, env_with_tex
+
+
+def _pick_engine() -> str | None:
+    """Prefer xelatex on Windows (MiKTeX latexmk often needs Perl)."""
+    if sys.platform == "win32":
+        return resolve("xelatex") or resolve("latexmk")
+    return resolve("latexmk") or resolve("xelatex")
 
 
 class LatexToPdf(Adapter):
@@ -27,9 +35,10 @@ class LatexToPdf(Adapter):
         tex_name = Path(input_path).name
         base = Path(input_path).stem
 
-        engine = resolve("latexmk") or resolve("xelatex")
+        engine = _pick_engine()
         if not engine:
-            print("[LatexToPdf] xelatex not found. See docs/BUILD_MAC.md.")
+            hint = "docs/BUILD_WINDOWS.md" if sys.platform == "win32" else "docs/BUILD_MAC.md"
+            print(f"[LatexToPdf] xelatex not found. See {hint}.")
             return False
 
         self._ensure_parent(output_path)
@@ -43,6 +52,12 @@ class LatexToPdf(Adapter):
             cmd = [engine, "-interaction=nonstopmode", "-halt-on-error", tex_name]
 
         ok, out = self._run(cmd, cwd=tex_dir, env=env)
+        if not ok and is_latexmk:
+            xel = resolve("xelatex")
+            if xel:
+                cmd = [xel, "-interaction=nonstopmode", "-halt-on-error", tex_name]
+                ok, out = self._run(cmd, cwd=tex_dir, env=env)
+                is_latexmk = False
         if not ok:
             self._dump(tex_dir, base, out)
             return False

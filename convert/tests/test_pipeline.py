@@ -10,10 +10,11 @@ adapter edges cover all 12 ordered pairs, with BFS routing chaining the rest.
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 
 import pytest
 
-from convert.tools import resolve
+from convert.tools import env_with_tex, resolve
 from convert.adapters.latex_to_pdf import LatexToPdf
 from convert.adapters.latex_to_docx import LatexToDocx
 from convert.pipeline import Pipeline, route
@@ -23,6 +24,23 @@ SAMPLE_TEX = ROOT / "resume_template" / "sample-resume-en_US-zh_CN.tex"
 
 HAS_PANDOC = resolve("pandoc") is not None
 HAS_XELATEX = resolve("xelatex") is not None
+HAS_UNICODE_MATH = False
+
+kpsewhich = resolve("kpsewhich")
+if kpsewhich is not None:
+    try:
+        HAS_UNICODE_MATH = (
+            subprocess.run(
+                [kpsewhich, "unicode-math.sty"],
+                env=env_with_tex(),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            ).returncode
+            == 0
+        )
+    except OSError:
+        HAS_UNICODE_MATH = False
 
 try:
     import fitz  # noqa: F401  (PyMuPDF)
@@ -146,7 +164,10 @@ def test_markdown_to_docx_real(tmp_path):
     assert out.exists() and out.stat().st_size > 1000
 
 
-@pytest.mark.skipif(not (HAS_XELATEX and HAS_PANDOC), reason="needs xelatex+pandoc")
+@pytest.mark.skipif(
+    not (HAS_XELATEX and HAS_PANDOC and HAS_UNICODE_MATH),
+    reason="needs xelatex+pandoc+unicode-math",
+)
 def test_docx_to_pdf_real(tmp_path):
     # Build a docx first (md->docx), then docx->pdf.
     md = tmp_path / "in.md"
@@ -171,7 +192,10 @@ def test_pdf_to_markdown_real(tmp_path):
     assert "YOUR_NAME" in text  # placeholder name survives text extraction
 
 
-@pytest.mark.skipif(not (HAS_XELATEX and HAS_PANDOC), reason="needs xelatex+pandoc")
+@pytest.mark.skipif(
+    not (HAS_XELATEX and HAS_PANDOC and HAS_UNICODE_MATH),
+    reason="needs xelatex+pandoc+unicode-math",
+)
 def test_pipeline_md_to_pdf_real(tmp_path):
     md = tmp_path / "in.md"
     md.write_text(

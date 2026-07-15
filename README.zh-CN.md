@@ -25,7 +25,7 @@
 - **JD → 变体推荐器**（`apply/`）：基于关键词规则，挑出最匹配的简历。
 - **浏览器辅助投递**，含站点 adapter（Boss直聘 / LinkedIn / 通用 ATS）与**人工确认闸门**。
 - **投递 tracker**（CSV）+ 历史审计日志，每次操作都留痕。
-- **Agent Skill**（WorkBuddy / Cursor / 通用编辑器），固化工作流与诚实边界。
+- **Agent Skill**（Codex / Cursor / WorkBuddy / 通用编辑器），固化工作流与诚实边界。
 - **CI** 在每次 push/PR 时编译样例简历。
 
 ## 📦 安装
@@ -34,7 +34,7 @@
 
 | 工具 | 用于 | 说明 |
 |------|------|------|
-| TeX Live（`xelatex`） | 编译 PDF | macOS：`brew install --cask mactex`——完整指南见 [`docs/BUILD_MAC.md`](docs/BUILD_MAC.md) |
+| TeX（`xelatex`） | 编译 PDF | **Windows：** [MiKTeX](https://miktex.org/download) — [`docs/BUILD_WINDOWS.md`](docs/BUILD_WINDOWS.md) · **macOS：** [`docs/BUILD_MAC.md`](docs/BUILD_MAC.md) |
 | Python 3.10+ | `convert/` 与 `apply/` | |
 | pandoc | DOCX / Markdown 转换 | 只编 PDF 的话仅需 `xelatex`；`brew install pandoc` |
 | Playwright*（可选）* | `apply/` 实时浏览器预填 | `pip install playwright && playwright install chromium` |
@@ -44,7 +44,7 @@
 ```bash
 git clone https://github.com/Cavaradossi/job-seeker.git
 cd job-seeker
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
@@ -147,7 +147,7 @@ job-seeker/
 设计上安全。`outputs/`（编译产物 + tracker CSV）、`history/`、`docs/experience_bank.md`、以及你真实的 `.tex` 变体都被 gitignore。公开仓库只有干净模板 + 代码，示例内容一律用 `YOUR_NAME` / `your-email@example.com` 占位符。
 
 **Skill 支持哪些编辑器？**
-**Cursor** — 打开仓库即可，Skill 已内置在 `.cursor/skills/job-seeker/`（见 [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md)）。**WorkBuddy** 从 `.workbuddy/skills/` 加载。其他编辑器可手动遵循 [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md)。
+**Codex** — 从 [`AGENTS.md`](AGENTS.md) 和 [`docs/skill/CODEX.md`](docs/skill/CODEX.md) 开始。**Cursor** — 打开仓库即可；Skill 在 `.cursor/skills/job-seeker/`（中英双语）。见 [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md)。**WorkBuddy** 从 `.workbuddy/skills/` 加载。改 Skill 后同步：`.\scripts\sync_skills.ps1`（Windows）或 `./scripts/sync_skills.sh`。
 
 **能不能从 PDF 或 Word 文档起步，而不是 LaTeX？**
 可以。上传 `.tex` / `.md` / `.docx` / `.pdf` 任一格式，转成任意其他格式，pipeline 会自动路由。PDF 在**入口只提取文本**（用 PyMuPDF）：扫描件/图片型 PDF 没有文本层，会被拒绝，排版与样式也无法还原。请把「PDF 进」理解为「先把内容抢救出来，再用 LaTeX 模板重新排版」。

@@ -21,11 +21,14 @@ so bullets never overstate scope, metrics, or titles.
 
 | Editor | Path | Notes |
 |--------|------|-------|
-| **Cursor** | `.cursor/skills/job-seeker/` | Committed in repo — open project and use |
+| **Codex** | `AGENTS.md` + `docs/skill/CODEX.md` | Repo-level entry + Codex usage guide |
+| **Cursor** | `.cursor/skills/job-seeker/` | Committed — EN + `SKILL.zh-CN.md` |
 | WorkBuddy | `.workbuddy/skills/job-seeker/` | Add `agent_created: true` to frontmatter |
 | Portable copy | `docs/skill/job-seeker/` | Mirror for export / generic editors |
 
-Cursor setup guide: `docs/skill/CURSOR.md`.
+Cursor setup guide: `docs/skill/CURSOR.md`.  
+Chinese skill: `SKILL.zh-CN.md` (same directory).  
+Windows build: `docs/BUILD_WINDOWS.md` · compile with `.\build_resumes.ps1`.
 
 ## When to use
 
@@ -62,7 +65,9 @@ Do **not** trigger for generic LaTeX help unrelated to this repo's resume workfl
 ├── history/                    # Apply audit logs (gitignored)
 ├── build_resumes.sh            # macOS/Linux — compiles LaTeX_Resume_* if present
 ├── build_resumes.ps1           # Windows equivalent
-└── requirements.txt            # Python deps for convert/ + apply/
+├── scripts/sync_skills.ps1     # Windows — sync skill mirrors
+├── scripts/sync_skills.sh      # macOS/Linux — sync skill mirrors
+├── AGENTS.md                   # Agent entry (Cursor / compatible editors)
 ```
 
 **First-time setup:** copy `resume_template/` files into `LaTeX_Resume_CN/` or
@@ -79,7 +84,7 @@ Quick start — do not commit personal `.tex` to the public repo.
    `references/variant_playbook.md`
 4. **Plan A (default):** copy general variant `.tex` → change only `\centerline`
    headline → save as `resume-zh_jd_<company>.tex`
-5. Build: `./build_resumes.sh` (or compile single file in `resume_template/`)
+5. Build: `./build_resumes.sh` (Windows: `.\build_resumes.ps1`) or compile single file in `resume_template/`
 6. Verify page counts in script output — JD variants target **1 page**
 7. Update tracker via `apply` audit or manually append
    `outputs/job_application_tracker.csv`
@@ -174,6 +179,14 @@ Full openers/DM templates: `references/variant_playbook.md`.
 ```bash
 chmod +x ./build_resumes.sh && ./build_resumes.sh
 ```
+
+Windows (PowerShell):
+
+```powershell
+.\build_resumes.ps1
+```
+
+See `docs/BUILD_WINDOWS.md` or `docs/BUILD_MAC.md`.
 
 Critical page-count checks when `LaTeX_Resume_*` exists:
 

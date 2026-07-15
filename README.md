@@ -25,7 +25,7 @@ Sending the same resume to every job gets you filtered out. Hand-tailoring one p
 - **JD → variant recommender** (`apply/`): rule-based keyword matching picks the right resume for the role.
 - **Browser-assisted application** with site adapters (Boss直聘 / LinkedIn / generic ATS) and a **human-in-the-loop confirm gate**.
 - **Application tracker** (CSV) + history audit log — every action recorded.
-- **Agent Skill** (WorkBuddy / Cursor / editor-agnostic) that encodes the workflow and honesty boundaries.
+- **Agent Skill** (Codex / Cursor / WorkBuddy / editor-agnostic) that encodes the workflow and honesty boundaries.
 - **CI** compiles the sample resume on every push/PR.
 
 ## 📦 Installation
@@ -34,7 +34,7 @@ Sending the same resume to every job gets you filtered out. Hand-tailoring one p
 
 | Tool | Required for | Notes |
 |------|--------------|-------|
-| TeX Live (`xelatex`) | Compiling PDFs | macOS: `brew install --cask mactex` — full guide in [`docs/BUILD_MAC.md`](docs/BUILD_MAC.md) |
+| TeX Live (`xelatex`) | Compiling PDFs | **Windows:** [MiKTeX](https://miktex.org/download) — [`docs/BUILD_WINDOWS.md`](docs/BUILD_WINDOWS.md) · **macOS:** [`docs/BUILD_MAC.md`](docs/BUILD_MAC.md) |
 | Python 3.10+ | `convert/` and `apply/` | |
 | pandoc | DOCX / Markdown conversion | PDF works with just `xelatex`; `brew install pandoc` |
 | Playwright *(optional)* | Live browser prefill in `apply/` | `pip install playwright && playwright install chromium` |
@@ -44,7 +44,7 @@ Sending the same resume to every job gets you filtered out. Hand-tailoring one p
 ```bash
 git clone https://github.com/Cavaradossi/job-seeker.git
 cd job-seeker
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
@@ -149,7 +149,7 @@ Only for DOCX / Markdown conversion. `tex → pdf` works with just `xelatex`.
 Yes by design. `outputs/` (compiled PDFs + tracker CSV), `history/`, `docs/experience_bank.md`, and your real `.tex` variants are all gitignored. The public repo contains only the clean template + code, using `YOUR_NAME` / `your-email@example.com` placeholders.
 
 **Which editors does the Skill support?**
-**Cursor** — open the repo; the skill is pre-installed under `.cursor/skills/job-seeker/` (see [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md)). **WorkBuddy** loads from `.workbuddy/skills/`. For other editors, follow [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md) manually.
+**Codex** — start from [`AGENTS.md`](AGENTS.md) and [`docs/skill/CODEX.md`](docs/skill/CODEX.md). **Cursor** — open the repo; skill is under `.cursor/skills/job-seeker/` (English + Chinese). See [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md). **WorkBuddy** loads from `.workbuddy/skills/`. Sync after edits: `.\scripts\sync_skills.ps1` (Windows) or `./scripts/sync_skills.sh`.
 
 **Can I start from a PDF or Word doc instead of LaTeX?**
 Yes. Upload any of `.tex` / `.md` / `.docx` / `.pdf` and convert to any other — the pipeline routes automatically. PDF is **text-only** on the way in (extracted with PyMuPDF): a scanned/image PDF has no text layer and will be rejected, and layout/styling is not recovered. Treat PDF-in as "recover the content, then re-typeset with the LaTeX template."
