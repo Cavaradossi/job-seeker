@@ -11,18 +11,22 @@ docs/skill/job-seeker/          # Edit here first (portable / open-source source
 ├── references/
 │   ├── master_prompt_extract.md
 │   └── variant_playbook.md
+├── agents/
+│   └── openai.yaml              # Codex UI metadata
 ├── checklist.md
 └── README.md                     # this file
 
+.codex/skills/job-seeker/         # Codex project skill
 .cursor/skills/job-seeker/        # Cursor (committed — clone & open repo)
 .workbuddy/skills/job-seeker/     # WorkBuddy (add agent_created: true in frontmatter)
 ```
 
 ## Codex
 
-Codex uses the repo-level `AGENTS.md` as the agent entry point. Keep this
-portable Skill as the source of truth, and see [`../CODEX.md`](../CODEX.md) for
-Codex prompts, Windows setup notes, and the current MCP boundary.
+Codex loads the committed project Skill from `.codex/skills/job-seeker/` and
+also reads the repo-level `AGENTS.md`. Keep this portable Skill as the source of
+truth, and see [`../CODEX.md`](../CODEX.md) for Codex prompts, Windows setup
+notes, and the current MCP boundary.
 
 ## Cursor (recommended for this repo)
 

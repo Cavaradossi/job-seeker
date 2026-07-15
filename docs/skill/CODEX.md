@@ -1,9 +1,8 @@
 # Using job-seeker with Codex
 
-Codex reads the repo-level `AGENTS.md` automatically. This project also keeps a
-portable workflow Skill under `docs/skill/job-seeker/`; use it as the source of
-truth when Codex is asked to tailor resumes, convert files, rehearse apply flows,
-or update Skill mirrors.
+Codex reads the repo-level `AGENTS.md` automatically and can load the committed
+project Skill from `.codex/skills/job-seeker/`. The portable source remains
+`docs/skill/job-seeker/`; edit that first, then sync mirrors.
 
 ## Quick setup
 
@@ -32,7 +31,7 @@ or update Skill mirrors.
 
 ## Suggested Codex prompts
 
-- "Use the job-seeker Skill in `docs/skill/job-seeker/` to recommend a resume
+- "Use $job-seeker to recommend a resume
   variant for this JD. Keep it dry-run only."
 - "Check this resume bullet against the honesty boundaries before I use it."
 - "Run the Windows build path and tell me whether the sample resume compiles."
@@ -40,7 +39,7 @@ or update Skill mirrors.
 
 ## Operating rules for Codex
 
-- Read `AGENTS.md` first, then `docs/skill/job-seeker/SKILL.md` when the task
+- Read `AGENTS.md` first, then `.codex/skills/job-seeker/SKILL.md` when the task
   touches resumes, conversion, apply, or Skill mirrors.
 - Read `docs/experience_bank.md` before changing resume bullets. If it is
   missing, ask the user to create it from `docs/experience_bank.example.md`.

@@ -128,6 +128,7 @@ job-seeker/
 │   └── cli.py              python -m apply ...
 ├── docs/                    Build guide, open-source plan, tracker schema, example bank
 ├── docs/skill/job-seeker/  Portable Agent Skill source (sync target)
+├── .codex/skills/job-seeker/  Codex project skill
 ├── .cursor/skills/job-seeker/  Cursor project skill (open repo → ready)
 ├── .workbuddy/skills/job-seeker/  WorkBuddy project skill
 ├── build_resumes.sh/.ps1   Cross-platform build scripts
@@ -149,7 +150,7 @@ Only for DOCX / Markdown conversion. `tex → pdf` works with just `xelatex`.
 Yes by design. `outputs/` (compiled PDFs + tracker CSV), `history/`, `docs/experience_bank.md`, and your real `.tex` variants are all gitignored. The public repo contains only the clean template + code, using `YOUR_NAME` / `your-email@example.com` placeholders.
 
 **Which editors does the Skill support?**
-**Codex** — start from [`AGENTS.md`](AGENTS.md) and [`docs/skill/CODEX.md`](docs/skill/CODEX.md). **Cursor** — open the repo; skill is under `.cursor/skills/job-seeker/` (English + Chinese). See [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md). **WorkBuddy** loads from `.workbuddy/skills/`. Sync after edits: `.\scripts\sync_skills.ps1` (Windows) or `./scripts/sync_skills.sh`.
+**Codex** — project skill is under `.codex/skills/job-seeker/`; start from [`AGENTS.md`](AGENTS.md) and [`docs/skill/CODEX.md`](docs/skill/CODEX.md). **Cursor** — open the repo; skill is under `.cursor/skills/job-seeker/` (English + Chinese). See [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md). **WorkBuddy** loads from `.workbuddy/skills/`. Sync after edits: `.\scripts\sync_skills.ps1` (Windows) or `./scripts/sync_skills.sh`.
 
 **Can I start from a PDF or Word doc instead of LaTeX?**
 Yes. Upload any of `.tex` / `.md` / `.docx` / `.pdf` and convert to any other — the pipeline routes automatically. PDF is **text-only** on the way in (extracted with PyMuPDF): a scanned/image PDF has no text layer and will be rejected, and layout/styling is not recovered. Treat PDF-in as "recover the content, then re-typeset with the LaTeX template."

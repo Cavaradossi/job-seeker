@@ -24,7 +24,7 @@ If you add a new document, **add a row to the table below** — that rule is enf
 
 | Document | What it covers | Audience |
 |----------|----------------|----------|
-| [`skill/CODEX.md`](skill/CODEX.md) | Codex setup, prompts, Windows notes, and MCP boundary | Codex users |
+| [`skill/CODEX.md`](skill/CODEX.md) | Codex Skill setup, prompts, Windows notes, and MCP boundary | Codex users |
 | [`skill/CURSOR.md`](skill/CURSOR.md) | Cursor setup — skill + rules + Windows notes | Cursor users |
 | [`skill/job-seeker/SKILL.md`](skill/job-seeker/SKILL.md) | Agent Skill (English): workflow + honesty boundaries | AI editors |
 | [`skill/job-seeker/SKILL.zh-CN.md`](skill/job-seeker/SKILL.zh-CN.md) | Agent Skill (中文) | Cursor / 中文对话 |

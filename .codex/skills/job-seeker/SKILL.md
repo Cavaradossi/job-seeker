@@ -7,8 +7,6 @@ description: >-
   update the application tracker, and enforce honesty boundaries. Use when the
   user mentions 申职器, job-seeker, resume, JD, LaTeX compile, convert resume
   format, apply to a job posting, or tracker updates.
-version: 0.2.0
-tags: [resume, job-search, latex, career, convert, apply, 申职器]
 ---
 
 # job-seeker — 申职器

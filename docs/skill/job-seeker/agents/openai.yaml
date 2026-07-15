@@ -1,0 +1,4 @@
+interface:
+  display_name: "job-seeker"
+  short_description: "Tailor and verify resume workflows safely"
+  default_prompt: "Use $job-seeker to recommend a resume variant for this JD and keep the apply flow dry-run only."

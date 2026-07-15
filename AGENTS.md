@@ -7,6 +7,7 @@ resumes, running apply, or changing skill mirrors.
 |----------|------|
 | **Primary Skill (English)** | [`.cursor/skills/job-seeker/SKILL.md`](.cursor/skills/job-seeker/SKILL.md) |
 | **Skill (中文)** | [`.cursor/skills/job-seeker/SKILL.zh-CN.md`](.cursor/skills/job-seeker/SKILL.zh-CN.md) |
+| **Codex Skill** | [`.codex/skills/job-seeker/SKILL.md`](.codex/skills/job-seeker/SKILL.md) |
 | Portable source (edit first) | [`docs/skill/job-seeker/`](docs/skill/job-seeker/) |
 | Codex setup | [`docs/skill/CODEX.md`](docs/skill/CODEX.md) |
 | Cursor setup | [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md) |

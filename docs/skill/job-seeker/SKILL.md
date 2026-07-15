@@ -21,11 +21,12 @@ so bullets never overstate scope, metrics, or titles.
 
 | Editor | Path | Notes |
 |--------|------|-------|
-| **Codex** | `AGENTS.md` + `docs/skill/CODEX.md` | Repo-level entry + Codex usage guide |
+| **Codex** | `.codex/skills/job-seeker/` + `AGENTS.md` | Committed project Skill + repo-level entry |
 | **Cursor** | `.cursor/skills/job-seeker/` | Committed — EN + `SKILL.zh-CN.md` |
 | WorkBuddy | `.workbuddy/skills/job-seeker/` | Add `agent_created: true` to frontmatter |
 | Portable copy | `docs/skill/job-seeker/` | Mirror for export / generic editors |
 
+Codex setup guide: `docs/skill/CODEX.md`.  
 Cursor setup guide: `docs/skill/CURSOR.md`.  
 Chinese skill: `SKILL.zh-CN.md` (same directory).  
 Windows build: `docs/BUILD_WINDOWS.md` · compile with `.\build_resumes.ps1`.
@@ -67,7 +68,8 @@ Do **not** trigger for generic LaTeX help unrelated to this repo's resume workfl
 ├── build_resumes.ps1           # Windows equivalent
 ├── scripts/sync_skills.ps1     # Windows — sync skill mirrors
 ├── scripts/sync_skills.sh      # macOS/Linux — sync skill mirrors
-├── AGENTS.md                   # Agent entry (Cursor / compatible editors)
+├── .codex/skills/job-seeker/   # Codex project skill
+├── AGENTS.md                   # Agent entry (Codex / Cursor / compatible editors)
 ```
 
 **First-time setup:** copy `resume_template/` files into `LaTeX_Resume_CN/` or
@@ -205,6 +207,7 @@ Missing `xelatex` → exit 2, see `docs/BUILD_MAC.md`.
 | `references/master_prompt_extract.md` | Full vision + extended rules |
 | `references/variant_playbook.md` | Variant pick + opener templates |
 | `checklist.md` | Before submit / before PR |
+| `docs/skill/CODEX.md` | Codex-specific setup, prompts, MCP boundary |
 | `docs/skill/CURSOR.md` | Cursor-specific tips |
 | `convert/README.md` | Conversion routes & lossy warnings |
 | `apply/README.md` | Apply adapters & confirm gate |
@@ -214,7 +217,7 @@ Missing `xelatex` → exit 2, see `docs/BUILD_MAC.md`.
 Use `YOUR_NAME`, `your-email@example.com`, `your-org/job-seeker`,
 `YOUR_OPEN_SOURCE_PROJECT`, `COMPANY_X` — never real maintainer PII in examples.
 
-## 8. Agent behavior (Cursor)
+## 8. Agent behavior (Codex / Cursor)
 
 1. **Read before write:** `docs/experience_bank.md` + target `.tex`
 2. **Minimal diff:** do not refactor `convert/` or `apply/` core unless asked
