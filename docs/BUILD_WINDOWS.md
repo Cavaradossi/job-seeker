@@ -157,6 +157,20 @@ powershell -ExecutionPolicy Bypass -File .\build_resumes.ps1
 Use `\` or `/` in PowerShell for local paths. In Skill/docs for agents, prefer
 forward slashes (`resume_template/sample.tex`) — they work on Windows too.
 
+### Garbled dashes/arrows in `convert` / `apply` console output
+
+`cli.py` output uses em dashes (`—`) and arrows for readability. On a default
+Windows console (codepage 936/GBK, common on zh-CN Windows), these can print
+as `??` or mojibake — this is a console rendering issue, not a bug in the
+output. Fix for the session:
+
+```powershell
+chcp 65001            # switch the console to UTF-8
+$env:PYTHONUTF8 = "1" # or force Python's UTF-8 mode
+```
+
+Resume PDFs themselves are unaffected — this only affects terminal text.
+
 ---
 
 ## 9. Run tests (no full TeX required)
