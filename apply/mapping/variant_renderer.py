@@ -1,7 +1,7 @@
 """Render a resume variant: locate the .tex and compile to PDF (Phase 2 reuse).
 
 Search order for the .tex: LaTeX_Resume_CN, LaTeX_Resume_EN, resume_template.
-In the public template repo only resume_template/HouJP-en_US-zh_CN.tex exists;
+In the public template repo only resume_template/sample-resume-en_US-zh_CN.tex exists;
 add your own variants to LaTeX_Resume_*/ in your private fork.
 """
 from __future__ import annotations

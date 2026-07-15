@@ -6,10 +6,10 @@ Use this checklist before, during, and after editing resumes or submitting appli
 
 ## A. Before editing a resume
 
-- [ ] Read `doc/experience_bank.md` for the relevant bullets
+- [ ] Read `docs/experience_bank.md` for the relevant bullets
 - [ ] Read the target `.tex` file in full
 - [ ] Identify the variant (job / JD-specific / ai_eval / backend_ops / web3 / CN-full)
-- [ ] If new JD: read `doc/jd_mapping/<company>.md` or the pasted JD
+- [ ] If new JD: read `docs/jd_mapping/<company>.md` or the pasted JD
 - [ ] Decide Plan A (headline-only change) vs Plan B (deeper edit)
 
 ## B. While editing
@@ -46,7 +46,7 @@ Use this checklist before, during, and after editing resumes or submitting appli
 
 - [ ] Appended a row to `outputs/job_application_tracker_domestic.csv` (or international tracker)
 - [ ] Company name, role, date, variant used, JD source, status columns filled
-- [ ] Optional: saved the JD text to `doc/jd_mapping/<company>.md` for future reference
+- [ ] Optional: saved the JD text to `docs/jd_mapping/<company>.md` for future reference
 - [ ] Optional: wrote a cover note in `outputs/cover_notes/<company>.txt`
 - [ ] Optional: debrief entry in `history/job_search_2025_2026.md`
 
@@ -68,5 +68,5 @@ If any answer is "no" or "kind of" — fix the bullet before submitting. Do not 
 - [ ] No real name / email / GitHub in example content (use `YOUR_NAME`, `your-email@example.com`, `your-org/job-seeker`)
 - [ ] No real company names in JD examples (use `COMPANY_X`)
 - [ ] No real metrics in `experience_bank.example.md` (use `METRIC_N`)
-- [ ] `outputs/`, `history/`, `meessage/`, `doc/jd_mapping/`, `doc/*.docx` are gitignored
+- [ ] `outputs/`, `history/`, `meessage/`, `docs/jd_mapping/`, `docs/*.docx` are gitignored
 - [ ] Commit does not include `.aux`, `.log`, `.out`, or compiled PDFs in `LaTeX_Resume_*/`

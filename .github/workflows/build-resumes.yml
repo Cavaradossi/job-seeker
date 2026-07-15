@@ -4,7 +4,7 @@ name: build-resumes
 # Uses a TeX Live full Docker image to avoid the ~10 min apt install on every run.
 # Adobe CJK fonts are bundled in resume_template/fonts/zh_CN-Adobe/ — no font install needed.
 #
-# For v0.1, this compiles the upstream sample (HouJP-en_US-zh_CN.tex) as a smoke test.
+# For v0.1, this compiles the upstream sample (sample-resume-en_US-zh_CN.tex) as a smoke test.
 # When you add your own LaTeX_Resume_CN/ and LaTeX_Resume_EN/ directories, switch to
 # running ./build_resumes.sh instead (see the commented step below).
 
@@ -27,6 +27,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Governance guard — see docs/GOVERNANCE.md
+      - name: Governance checks
+        run: |
+          set -e
+          fail=0
+
+          # Rule 1: exactly one docs directory. A singular doc/ must never reappear.
+          if [ -d doc ]; then
+            echo "::error::A 'doc/' directory exists. Use 'docs/' only (see docs/GOVERNANCE.md rule 1)."
+            fail=1
+          fi
+
+          # Rule 2: every markdown directly under docs/ must be listed in docs/README.md.
+          if [ -f docs/README.md ]; then
+            for f in docs/*.md; do
+              base=$(basename "$f")
+              [ "$base" = "README.md" ] && continue
+              if ! grep -q "$base" docs/README.md; then
+                echo "::error::docs/$base is not listed in docs/README.md (see docs/GOVERNANCE.md rule 2)."
+                fail=1
+              fi
+            done
+          else
+            echo "::error::docs/README.md (the documentation index) is missing."
+            fail=1
+          fi
+
+          if [ "$fail" -ne 0 ]; then
+            echo "Governance checks failed."
+            exit 1
+          fi
+          echo "Governance checks passed."
+
       - name: Verify xelatex
         run: xelatex --version
 
@@ -38,10 +71,10 @@ jobs:
       - name: Compile sample resume
         run: |
           cd resume_template
-          xelatex -interaction=nonstopmode -halt-on-error HouJP-en_US-zh_CN.tex
+          xelatex -interaction=nonstopmode -halt-on-error sample-resume-en_US-zh_CN.tex
           cd ..
           echo "=== Compiled PDF ==="
-          ls -la resume_template/HouJP-en_US-zh_CN.pdf
+          ls -la resume_template/sample-resume-en_US-zh_CN.pdf
 
       # When you have LaTeX_Resume_CN/ and LaTeX_Resume_EN/ directories, uncomment this:
       # - name: Build all resumes
@@ -53,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: resume-sample-${{ github.sha }}
-          path: resume_template/HouJP-en_US-zh_CN.pdf
+          path: resume_template/sample-resume-en_US-zh_CN.pdf
           retention-days: 7
           if-no-files-found: error
 

@@ -1,0 +1,37 @@
+# Documentation index
+
+This is the map of everything under `docs/`. Start here, then jump to the file you need.
+If you add a new document, **add a row to the table below** — that rule is enforced (see [`GOVERNANCE.md`](GOVERNANCE.md)).
+
+## Guides
+
+| Document | What it covers | Audience |
+|----------|----------------|----------|
+| [`BUILD_MAC.md`](BUILD_MAC.md) | Installing TeX Live + pandoc on macOS and compiling the sample resume | New users on macOS |
+| [`job_seeker_opensource_plan.md`](job_seeker_opensource_plan.md) | Roadmap, phase breakdown, privacy strategy, and governance direction | Contributors |
+| [`GOVERNANCE.md`](GOVERNANCE.md) | Rules that keep this repo (docs + file tree) from rotting | Contributors / maintainers |
+
+## Reference
+
+| Document | What it covers | Audience |
+|----------|----------------|----------|
+| [`tracker_schema.md`](tracker_schema.md) | Column-by-column schema of the application tracker CSV | Anyone reading/writing the tracker |
+| [`experience_bank.example.md`](experience_bank.example.md) | Template for your private experience bank (real one is gitignored) | Users tailoring resumes |
+
+## Agent Skill
+
+| Document | What it covers | Audience |
+|----------|----------------|----------|
+| [`skill/job-seeker/SKILL.md`](skill/job-seeker/SKILL.md) | The portable Agent Skill: full workflow + honesty boundaries | AI editors (WorkBuddy / Cursor / generic) |
+| [`skill/job-seeker/checklist.md`](skill/job-seeker/checklist.md) | Per-application checklist the Skill follows | AI editors |
+| [`skill/job-seeker/references/`](skill/job-seeker/references/) | Master-prompt extract + variant playbook the Skill draws on | AI editors |
+
+---
+
+## Where each kind of doc lives
+
+- **User-facing overview** → root [`README.md`](../README.md) / [`README.zh-CN.md`](../README.zh-CN.md) (not here).
+- **Per-package how-it-works** → the package's own `README.md` (`convert/README.md`, `apply/README.md`, `resume_template/README.md`) — kept next to the code it documents.
+- **Cross-cutting guides, plans, schemas** → this `docs/` directory.
+
+There is exactly one documentation directory: **`docs/`**. There is no `doc/`. See [`GOVERNANCE.md`](GOVERNANCE.md) for why and how that's enforced.

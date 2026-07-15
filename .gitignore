@@ -36,8 +36,8 @@ Thumbs.db
 .workbuddy/memory/
 
 # Personal data (never commit)
-doc/experience_bank.md
-doc/jd_mapping/
+docs/experience_bank.md
+docs/jd_mapping/
 history/
 meessage/
 

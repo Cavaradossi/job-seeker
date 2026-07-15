@@ -1,6 +1,6 @@
 """Audit logging: append every application event to the tracker + a daily debrief.
 
-Tracker schema: see doc/tracker_schema.md
+Tracker schema: see docs/tracker_schema.md
     date,company,role,location,variant_used,jd_source,status,applied_via,response_date,notes
 
 Privacy: the tracker (outputs/job_application_tracker.csv) and history/ are

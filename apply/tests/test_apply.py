@@ -126,11 +126,11 @@ def test_cli_dry_run(tmp_path, monkeypatch):
     monkeypatch.setattr(apply.audit, "HISTORY", tmp_path / "history")
     monkeypatch.setattr(vr, "OUT", tmp_path)
     rc = apply.cli.main(["--jd-file", str(SAMPLE_JD),
-                         "--variant", "HouJP-en_US-zh_CN", "--dry-run"])
+                         "--variant", "sample-resume-en_US-zh_CN", "--dry-run"])
     assert rc == 0
     assert (tmp_path / "tracker.csv").exists()
     assert "dry_run" in (tmp_path / "tracker.csv").read_text()
-    pdf = tmp_path / "HouJP-en_US-zh_CN_applied.pdf"
+    pdf = tmp_path / "sample-resume-en_US-zh_CN_applied.pdf"
     assert pdf.exists() and pdf.stat().st_size > 1000
 
 

@@ -1,7 +1,9 @@
 # convert/ — format conversion pipeline (Phase 2)
 
-Single source document → multiple output formats (Markdown ↔ DOCX ↔ PDF ↔ LaTeX).
-Each adapter does one conversion; `Pipeline` chains them with temp intermediates.
+Convert a résumé between **any** of four formats — **Markdown ↔ DOCX ↔ PDF ↔ LaTeX** —
+in any direction. Upload your existing resume in whichever format you have
+(including a PDF) and export it to any of the others. Each adapter does one
+conversion; `Pipeline` auto-routes and chains them with temp intermediates.
 
 ## Layout
 
@@ -11,10 +13,15 @@ convert/
 ├── adapters/
 │   ├── base.py                   # Adapter ABC: convert(input, output) -> bool
 │   ├── markdown_to_latex.py      # pandoc
+│   ├── markdown_to_docx.py       # pandoc
+│   ├── markdown_to_pdf.py        # pandoc --pdf-engine=xelatex
 │   ├── latex_to_pdf.py           # latexmk (preferred) / xelatex
 │   ├── latex_to_docx.py          # pandoc  (LOSSY)
+│   ├── latex_to_markdown.py      # pandoc  (LOSSY)
 │   ├── docx_to_latex.py          # pandoc  (LOSSY)
-│   └── markdown_to_pdf.py        # pandoc --pdf-engine=xelatex
+│   ├── docx_to_markdown.py       # pandoc  (LOSSY)
+│   ├── docx_to_pdf.py            # pandoc --pdf-engine=xelatex (LOSSY layout)
+│   └── pdf_to_markdown.py        # PyMuPDF text extraction (LOSSY — PDF input)
 ├── pipeline.py                   # BFS route by extension + Pipeline chain
 ├── cli.py                        # python -m convert ...
 └── tests/test_pipeline.py
@@ -27,9 +34,11 @@ convert/
 source .venv/bin/activate
 
 # Auto-route by extension (prints the chosen chain + lossy warnings)
-python -m convert --input resume_template/HouJP-en_US-zh_CN.tex --output sample.pdf
-python -m convert --input resume_template/HouJP-en_US-zh_CN.tex --output sample.docx
-python -m convert --input notes.md --output notes.pdf
+python -m convert --input resume_template/sample-resume-en_US-zh_CN.tex --output sample.pdf
+python -m convert --input resume_template/sample-resume-en_US-zh_CN.tex --output sample.docx
+python -m convert --input my-resume.pdf  --output my-resume.md     # PDF as INPUT
+python -m convert --input my-resume.docx --output my-resume.pdf
+python -m convert --input notes.md       --output notes.pdf
 
 # List supported edges
 python -m convert --list-routes
@@ -38,18 +47,43 @@ python -m convert --list-routes
 pytest convert/tests/
 ```
 
-## Supported routes
+## Any-to-any conversion matrix
 
-| From | To   | Adapter            | Lossy? |
-|------|------|--------------------|--------|
-| md   | tex  | MarkdownToLatex    | no (standard MD) |
-| tex  | pdf  | LatexToPdf         | no |
-| tex  | docx | LatexToDocx        | **yes** — custom resume macros dropped |
-| docx | tex  | DocxToLatex        | **yes** — generic article-class output |
-| md   | pdf  | MarkdownToPdf      | uses pandoc default template (not a resume layout) |
+Rows = source, columns = target. `·` = same format (copied). Every cell is
+reachable; multi-hop routes are resolved automatically.
 
-Multi-hop routes are resolved automatically, e.g. `md → docx` runs
-`MarkdownToLatex` then `LatexToDocx`.
+| from → to | **md** | **tex** | **docx** | **pdf** |
+|-----------|--------|---------|----------|---------|
+| **md**    | ·      | direct  | direct   | direct  |
+| **tex**   | direct (lossy) | · | direct (lossy) | direct |
+| **docx**  | direct (lossy) | direct (lossy) | · | direct (lossy) |
+| **pdf**   | direct (lossy) | via md (lossy) | via md (lossy) | · |
+
+### Direct adapter edges
+
+| From | To   | Adapter          | Tool    | Lossy? |
+|------|------|------------------|---------|--------|
+| md   | tex  | MarkdownToLatex  | pandoc  | no (standard MD) |
+| md   | docx | MarkdownToDocx   | pandoc  | no (standard MD) |
+| md   | pdf  | MarkdownToPdf    | pandoc + xelatex | pandoc default template (not a resume layout) |
+| tex  | pdf  | LatexToPdf       | latexmk / xelatex | no |
+| tex  | docx | LatexToDocx      | pandoc  | **yes** — custom resume macros dropped |
+| tex  | md   | LatexToMarkdown  | pandoc  | **yes** — macros + layout dropped |
+| docx | tex  | DocxToLatex      | pandoc  | **yes** — generic article-class output |
+| docx | md   | DocxToMarkdown   | pandoc  | **yes** — Word styling dropped |
+| docx | pdf  | DocxToPdf        | pandoc + xelatex | **yes** — re-typeset, not Word-accurate |
+| pdf  | md   | PdfToMarkdown    | PyMuPDF | **yes** — text-only extraction |
+
+### PDF as input (important caveats)
+
+pandoc cannot read PDF, so PDF ingestion uses **PyMuPDF** (`pip install pymupdf`)
+to extract the text layer. A PDF stores glyphs and positions, not semantic
+structure — so **headings, columns, tables, bullets, fonts, and icons are not
+reliably recovered**. You get readable text in reading order; review and
+re-structure the Markdown before converting onward. Scanned / image-only PDFs
+have no text layer and are not supported (OCR is out of scope).
+
+`pdf → tex` and `pdf → docx` run automatically as `pdf → md → {tex,docx}`.
 
 ## Design rules (honoured)
 

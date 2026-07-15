@@ -21,7 +21,7 @@ Trigger this skill when the user:
 
 - Pastes a new job description and asks for a tailored resume
 - Asks to compile / build / regenerate resume PDFs
-- Wants to add or edit a bullet in `doc/experience_bank.md`
+- Wants to add or edit a bullet in `docs/experience_bank.md`
 - Asks to "update the tracker" after submitting an application
 - Wants to verify honesty boundaries before submitting (e.g. "is this bullet OK?")
 - Asks about the 申职器 / job-seeker project itself
@@ -47,8 +47,8 @@ Do **not** trigger this skill for general LaTeX questions unrelated to this repo
 │   ├── resume_backend_ops.tex
 │   ├── resume_ai_eval.tex
 │   └── resume_web3.tex           # Web3 anonymous variant
-├── resume_template/              # upstream billryan/HouJP clean template (no personal info)
-├── doc/
+├── resume_template/              # clean LaTeX template (no personal info)
+├── docs/
 │   ├── experience_bank.md        # bullet material library — READ FIRST before editing .tex
 │   ├── jd_mapping/               # JD summaries & keywords per company
 │   └── BUILD_MAC.md              # macOS TeX install instructions
@@ -63,8 +63,8 @@ Do **not** trigger this skill for general LaTeX questions unrelated to this repo
 
 ### A. New JD → tailored resume
 
-1. Read the JD (user-pasted text or `doc/jd_mapping/<company>.md`)
-2. Read `doc/experience_bank.md` to pick bullets — **do not invent**
+1. Read the JD (user-pasted text or `docs/jd_mapping/<company>.md`)
+2. Read `docs/experience_bank.md` to pick bullets — **do not invent**
 3. Default to **Plan A**: copy `resume-zh_job.tex` → only change the `\centerline` headline → save as `resume-zh_jd_<company>.tex`
 4. Build: `./build_resumes.sh`
 5. Verify page count from the script's summary table — JD variants must be 1 page
@@ -72,7 +72,7 @@ Do **not** trigger this skill for general LaTeX questions unrelated to this repo
 
 ### B. Edit bullets or skills
 
-1. If the change affects multiple resumes, edit `doc/experience_bank.md` first
+1. If the change affects multiple resumes, edit `docs/experience_bank.md` first
 2. Apply the same edit to each affected `LaTeX_Resume_*/*.tex`
 3. Run `./build_resumes.sh` and check page counts — especially `resume_job_en.pdf` (must stay 1 page)
 
@@ -142,7 +142,7 @@ The script prints a page-count table at the end. Critical checks:
 - All JD variants must be **1 page**
 - `resume-zh_CN.pdf` may be multi-page
 
-If `xelatex` is missing, the script exits with code 2 and points to `doc/BUILD_MAC.md`.
+If `xelatex` is missing, the script exits with code 2 and points to `docs/BUILD_MAC.md`.
 
 ## 6. References
 
@@ -170,4 +170,4 @@ This skill does **not**:
 - Auto-submit job applications (Phase 3, human-in-the-loop only)
 - Convert between Markdown / DOCX / PDF / LaTeX (Phase 2)
 - Push to public GitHub repos without explicit user confirmation
-- Modify `.tex` body content without first reading `doc/experience_bank.md`
+- Modify `.tex` body content without first reading `docs/experience_bank.md`

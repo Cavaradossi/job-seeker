@@ -15,17 +15,26 @@ from typing import List
 
 from .adapters import (
     MarkdownToLatex, LatexToPdf, LatexToDocx, DocxToLatex, MarkdownToPdf,
+    MarkdownToDocx, DocxToMarkdown, DocxToPdf, LatexToMarkdown, PdfToMarkdown,
 )
 from .adapters.base import Adapter
 
 
 # Direct adapter edges: (in_ext, out_ext) -> Adapter class.
+# With these 10 direct edges, BFS reaches every ordered pair among the four
+# formats (md / tex / docx / pdf). PDF is input-only (via PyMuPDF); PDF -> tex
+# and PDF -> docx route through PDF -> md.
 _EDGES = {
     ("md", "tex"): MarkdownToLatex,
+    ("md", "pdf"): MarkdownToPdf,
+    ("md", "docx"): MarkdownToDocx,
     ("tex", "pdf"): LatexToPdf,
     ("tex", "docx"): LatexToDocx,
+    ("tex", "md"): LatexToMarkdown,
     ("docx", "tex"): DocxToLatex,
-    ("md", "pdf"): MarkdownToPdf,
+    ("docx", "md"): DocxToMarkdown,
+    ("docx", "pdf"): DocxToPdf,
+    ("pdf", "md"): PdfToMarkdown,
 }
 
 

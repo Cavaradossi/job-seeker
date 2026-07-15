@@ -119,7 +119,7 @@ ls LaTeX_Resume_CN/fonts/zh_CN-Adobe/
 #   AdobeSongStd-Light.otf
 ```
 
-If any are missing, copy them from `resume_template/fonts/zh_CN-Adobe/` (the upstream billryan/HouJP template ships all four):
+If any are missing, copy them from `resume_template/fonts/zh_CN-Adobe/` (the LaTeX template ships all four):
 
 ```bash
 cp resume_template/fonts/zh_CN-Adobe/*.otf LaTeX_Resume_CN/fonts/zh_CN-Adobe/
@@ -170,7 +170,7 @@ Page counts:
 | `resume_ai_eval.pdf` | 1 page |
 | `resume_web3.pdf` | 1 page |
 
-If `resume_job_en.pdf` is more than 1 page, the bullets need tightening — see `doc/work_buddy_master_prompt.md` §6.4.
+If `resume_job_en.pdf` is more than 1 page, the bullets need tightening — see `docs/work_buddy_master_prompt.md` §6.4.
 
 ---
 

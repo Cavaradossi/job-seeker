@@ -44,7 +44,7 @@ Do **not** trigger this skill for general LaTeX questions unrelated to this repo
 │   ├── resume_backend_ops.tex
 │   ├── resume_ai_eval.tex
 │   └── resume_web3.tex           # Web3 anonymous variant
-├── resume_template/              # upstream billryan/HouJP clean template (no personal info)
+├── resume_template/              # clean LaTeX template (no personal info)
 ├── doc/
 │   ├── experience_bank.md        # bullet material library — READ FIRST before editing .tex
 │   ├── jd_mapping/               # JD summaries & keywords per company

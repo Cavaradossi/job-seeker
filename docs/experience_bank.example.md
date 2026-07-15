@@ -1,6 +1,6 @@
 # Experience Bank (Example)
 
-> Template for your bullet material library. Copy this file to `doc/experience_bank.md` and replace all placeholders with your real experience. **Never commit the real `experience_bank.md` to a public repo** — it's gitignored.
+> Template for your bullet material library. Copy this file to `docs/experience_bank.md` and replace all placeholders with your real experience. **Never commit the real `experience_bank.md` to a public repo** — it's gitignored.
 
 ---
 

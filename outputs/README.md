@@ -17,7 +17,7 @@ This directory holds compiled PDFs and private application tracking data.
 
 Everything in this directory is gitignored except this README.
 
-After cloning the public repo, run `../build_resumes.sh` (macOS/Linux) or `..\build_resumes.ps1` (Windows) to regenerate the PDFs locally. See `../doc/BUILD_MAC.md` for TeX install instructions.
+After cloning the public repo, run `../build_resumes.sh` (macOS/Linux) or `..\build_resumes.ps1` (Windows) to regenerate the PDFs locally. See `../docs/BUILD_MAC.md` for TeX install instructions.
 
 ## Iron rule
 

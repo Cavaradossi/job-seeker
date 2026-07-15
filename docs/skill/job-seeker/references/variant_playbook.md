@@ -30,12 +30,12 @@
 
 | Directory | Use |
 |-----------|-----|
-| `doc/` | Technical docs (experience facts, system descriptions — reference before writing resumes) |
+| `docs/` | Technical docs (experience facts, system descriptions — reference before writing resumes) |
 | `outputs/` | Deliverables: PDFs, job batches, tracker, this playbook |
 | `history/` | Submitted-company and interview debriefs |
 | `LaTeX_Resume_*` | Resume LaTeX sources and templates |
 
-Flow: **check `doc/` → edit `LaTeX_*` → `./build_resumes.sh` → use `outputs/*.pdf` to apply.**
+Flow: **check `docs/` → edit `LaTeX_*` → `./build_resumes.sh` → use `outputs/*.pdf` to apply.**
 
 ## Variant guidance
 

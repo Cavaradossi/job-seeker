@@ -29,7 +29,7 @@ class LatexToPdf(Adapter):
 
         engine = resolve("latexmk") or resolve("xelatex")
         if not engine:
-            print("[LatexToPdf] xelatex not found. See doc/BUILD_MAC.md.")
+            print("[LatexToPdf] xelatex not found. See docs/BUILD_MAC.md.")
             return False
 
         self._ensure_parent(output_path)

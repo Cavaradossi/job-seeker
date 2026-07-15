@@ -26,7 +26,7 @@ class MarkdownToPdf(Adapter):
             print("[MarkdownToPdf] pandoc not found. Install: brew install pandoc")
             return False
         if not resolve("xelatex"):
-            print("[MarkdownToPdf] xelatex not found (pandoc PDF engine). See doc/BUILD_MAC.md.")
+            print("[MarkdownToPdf] xelatex not found (pandoc PDF engine). See docs/BUILD_MAC.md.")
             return False
         self._ensure_parent(output_path)
         ok, out = self._run(

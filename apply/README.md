@@ -94,14 +94,14 @@ stem, matching the SKILL §3 table): `resume_backend_ops`, `resume_ai_eval`,
 
 `variant_renderer.find_variant_tex()` searches `LaTeX_Resume_CN/`,
 `LaTeX_Resume_EN/`, then `resume_template/`. The public template repo ships
-only the upstream sample (`resume_template/HouJP-en_US-zh_CN.tex`); add your
+only the upstream sample (`resume_template/sample-resume-en_US-zh_CN.tex`); add your
 own variants to `LaTeX_Resume_*/` in your private fork. If a recommended
 variant is missing, the CLI prints a clear note and continues (dry-run still
 succeeds).
 
 ## Tracker schema
 
-See [`doc/tracker_schema.md`](../doc/tracker_schema.md). Status values written
+See [`docs/tracker_schema.md`](../docs/tracker_schema.md). Status values written
 by `apply`: `dry_run`, `degraded`, `submitted`, `user_cancelled`,
 `rehearse_confirmed`, `rehearse_cancelled`. The tracker and `history/` are
 gitignored — they hold real company names and dates.

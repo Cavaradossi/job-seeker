@@ -1,6 +1,6 @@
 # Master Prompt Extract — 申职器 (job-seeker) Reference
 
-> Condensed from `doc/work_buddy_master_prompt.md`. Personal identifiers replaced with placeholders. This is a reference, not the source of truth — for the full prompt, read the original.
+> Condensed from `docs/work_buddy_master_prompt.md`. Personal identifiers replaced with placeholders. This is a reference, not the source of truth — for the full prompt, read the original.
 
 ---
 
@@ -63,7 +63,7 @@ chmod +x ./build_resumes.sh
 ./build_resumes.sh
 ```
 
-Pre-requisites: `xelatex` (MacTeX or TeX Live) + CJK font packages matching `zh_CN-Adobefonts_external`. See `doc/BUILD_MAC.md` for full install instructions.
+Pre-requisites: `xelatex` (MacTeX or TeX Live) + CJK font packages matching `zh_CN-Adobefonts_external`. See `docs/BUILD_MAC.md` for full install instructions.
 
 **Iron rule**: `outputs/` only holds PDFs and tracker/notes — **never** copy `.tex` / `resume.cls` into `outputs/`.
 
@@ -107,15 +107,15 @@ Do **not**: put RAG stack in Skills; put Agent workflows in Skills; write Codex 
 
 ### A. New JD → tailored resume
 
-1. Read `doc/jd_mapping/` or user-pasted JD
-2. Cross-reference `doc/experience_bank.md` for bullets — **do not exaggerate**
+1. Read `docs/jd_mapping/` or user-pasted JD
+2. Cross-reference `docs/experience_bank.md` for bullets — **do not exaggerate**
 3. Default Plan A: copy `resume-zh_job.tex` → only change `\centerline` headline → output `resume-zh_jd_<company>.tex`
 4. Compile → `outputs/resume_jd_*_cn.pdf`
 5. Update `outputs/job_application_tracker_domestic.csv` and `outputs/cover_notes/`
 
 ### B. Edit bullets / skills
 
-1. Edit `doc/experience_bank.md` first (if affecting multiple resumes)
+1. Edit `docs/experience_bank.md` first (if affecting multiple resumes)
 2. Apply edits to each affected `LaTeX_Resume_*/*.tex`
 3. Compile and **check page count** (especially `resume_job_en.pdf`)
 
@@ -127,7 +127,7 @@ Do **not**: put RAG stack in Skills; put Agent workflows in Skills; write Codex 
 ### D. Refresh facts from docx
 
 ```bash
-python doc/extract_docx.py
+python docs/extract_docx.py
 ```
 
 ## 8. Agent behavior rules

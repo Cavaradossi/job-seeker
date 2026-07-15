@@ -12,16 +12,16 @@
 
 Sending the same resume to every job gets you filtered out. Hand-tailoring one per JD is slow, keeping `.tex` / DOCX / Markdown in sync is painful, and submitting applications is error-prone. job-seeker turns that into one coherent flow:
 
-- **One LaTeX source → many formats.** Edit the `.tex`, get PDF + DOCX + Markdown without manual sync.
+- **Bring any format, get any format.** Start from `.tex`, `.md`, `.docx`, *or* `.pdf` — convert freely between all four without manual sync.
 - **JD-aware variant picking.** Paste a JD, get a recommended resume variant.
 - **Apply without losing control.** A browser assistant prefills forms but **never auto-submits** — every submission waits for your explicit `y`.
 - **Honest resumes by design.** A built-in Skill enforces anti-inflation rules (no invented metrics, no inflated titles).
 
 ## 🚀 Features
 
-- **Clean LaTeX template** (upstream: billryan/HouJP) with **bundled Adobe CJK fonts** — no system font install needed.
+- **Clean LaTeX template** with **bundled Adobe CJK fonts** — no system font install needed.
 - **Cross-platform build scripts** (`build_resumes.sh` / `.ps1`) with page-count reporting.
-- **Format conversion pipeline** (`convert/`): Markdown ↔ DOCX ↔ PDF ↔ LaTeX via an adapter pattern with automatic routing.
+- **Any-to-any format conversion** (`convert/`): LaTeX ↔ Markdown ↔ DOCX ↔ PDF — upload a resume in *any* of the four formats and convert to any other, via an adapter pattern with automatic BFS routing (PDF text is ingested with PyMuPDF).
 - **JD → variant recommender** (`apply/`): rule-based keyword matching picks the right resume for the role.
 - **Browser-assisted application** with site adapters (Boss直聘 / LinkedIn / generic ATS) and a **human-in-the-loop confirm gate**.
 - **Application tracker** (CSV) + history audit log — every action recorded.
@@ -34,7 +34,7 @@ Sending the same resume to every job gets you filtered out. Hand-tailoring one p
 
 | Tool | Required for | Notes |
 |------|--------------|-------|
-| TeX Live (`xelatex`) | Compiling PDFs | macOS: `brew install --cask mactex` — full guide in [`doc/BUILD_MAC.md`](doc/BUILD_MAC.md) |
+| TeX Live (`xelatex`) | Compiling PDFs | macOS: `brew install --cask mactex` — full guide in [`docs/BUILD_MAC.md`](docs/BUILD_MAC.md) |
 | Python 3.10+ | `convert/` and `apply/` | |
 | pandoc | DOCX / Markdown conversion | PDF works with just `xelatex`; `brew install pandoc` |
 | Playwright *(optional)* | Live browser prefill in `apply/` | `pip install playwright && playwright install chromium` |
@@ -54,16 +54,19 @@ pip install -r requirements.txt
 
 ```bash
 cd resume_template
-xelatex -interaction=nonstopmode HouJP-en_US-zh_CN.tex
-# → HouJP-en_US-zh_CN.pdf (CJK fonts included, no extra setup)
+xelatex -interaction=nonstopmode sample-resume-en_US-zh_CN.tex
+# → sample-resume-en_US-zh_CN.pdf (CJK fonts included, no extra setup)
 ```
 
 ### 2. Convert between formats
 
 ```bash
-python -m convert --input resume_template/HouJP-en_US-zh_CN.tex --output outputs/sample.pdf
-python -m convert --input resume_template/HouJP-en_US-zh_CN.tex --output outputs/sample.docx
-python -m convert --list-routes          # see every supported conversion
+# The input format is inferred from the extension — start from ANY of .tex / .md / .docx / .pdf
+python -m convert --input resume_template/sample-resume-en_US-zh_CN.tex --output outputs/sample.pdf
+python -m convert --input resume_template/sample-resume-en_US-zh_CN.tex --output outputs/sample.docx
+python -m convert --input my_resume.pdf   --output outputs/my_resume.md    # PDF → Markdown (text extracted with PyMuPDF)
+python -m convert --input my_resume.docx  --output outputs/my_resume.tex   # DOCX → LaTeX
+python -m convert --list-routes           # see every supported conversion
 ```
 
 ### 3. Tailor to a JD & rehearse the apply flow
@@ -79,7 +82,7 @@ python -m apply --jd-file apply/samples/sample_jd.html --rehearse   # feel the c
 **Make a JD-specific variant.** Copy the general template, change only the headline, compile:
 
 ```bash
-cp resume_template/HouJP-en_US-zh_CN.tex LaTeX_Resume_CN/resume-zh_jd_acme.tex
+cp resume_template/sample-resume-en_US-zh_CN.tex LaTeX_Resume_CN/resume-zh_jd_acme.tex
 # edit \centerline{...} headline to match the JD, then:
 ./build_resumes.sh
 ```
@@ -123,7 +126,7 @@ job-seeker/
 │   ├── confirm.py          Human-in-the-loop gate (submit() always blocks here)
 │   ├── audit.py            Tracker CSV + history log
 │   └── cli.py              python -m apply ...
-├── doc/                    Build guide, open-source plan, tracker schema, example bank
+├── docs/                    Build guide, open-source plan, tracker schema, example bank
 ├── docs/skill/job-seeker/  Portable Agent Skill (WorkBuddy / Cursor / generic)
 ├── build_resumes.sh/.ps1   Cross-platform build scripts
 └── requirements.txt        Python deps for convert/ + apply/
@@ -141,10 +144,13 @@ Only for DOCX / Markdown conversion. `tex → pdf` works with just `xelatex`.
 **Never.** `submit()` always calls `confirm()` and blocks. Nothing is submitted without an explicit `y`. For Boss直聘 / LinkedIn (whose ToS prohibit automation), it doesn't even try — it opens the page and shows you the data to paste manually.
 
 **Is my personal data safe in the public repo?**
-Yes by design. `outputs/` (compiled PDFs + tracker CSV), `history/`, `doc/experience_bank.md`, and your real `.tex` variants are all gitignored. The public repo contains only the clean template + code, using `YOUR_NAME` / `your-email@example.com` placeholders.
+Yes by design. `outputs/` (compiled PDFs + tracker CSV), `history/`, `docs/experience_bank.md`, and your real `.tex` variants are all gitignored. The public repo contains only the clean template + code, using `YOUR_NAME` / `your-email@example.com` placeholders.
 
 **Which editors does the Skill support?**
 WorkBuddy (auto-loads from `.workbuddy/skills/`), Cursor (copy `docs/skill/job-seeker/` to `.cursor/skills/`), or any editor — just open `docs/skill/job-seeker/SKILL.md` and follow it manually.
+
+**Can I start from a PDF or Word doc instead of LaTeX?**
+Yes. Upload any of `.tex` / `.md` / `.docx` / `.pdf` and convert to any other — the pipeline routes automatically. PDF is **text-only** on the way in (extracted with PyMuPDF): a scanned/image PDF has no text layer and will be rejected, and layout/styling is not recovered. Treat PDF-in as "recover the content, then re-typeset with the LaTeX template."
 
 **The conversion to DOCX looks lossy — why?**
 LaTeX ↔ DOCX is fundamentally lossy: custom resume macros (`\name`, `\centerline`, `\datedsubsection`, icons) don't survive. The DOCX is an editable text mirror, never a layout-accurate render. The `.tex → .pdf` path is the source of truth. (The CLI prints a `WARNING` on every lossy step.)
@@ -154,15 +160,15 @@ LaTeX ↔ DOCX is fundamentally lossy: custom resume macros (`\name`, `\centerli
 Contributions are welcome — and there's plenty to do! A few good first areas:
 
 - **New site adapter** for an ATS you use (Workday / Greenhouse / Lever variants welcome) — see `apply/adapters/workday_generic.py` as a template.
-- **New conversion adapter** (e.g. HTML → PDF, LaTeX → Markdown) — implement the `Adapter` ABC in `convert/adapters/`.
+- **New conversion adapter** (e.g. HTML → PDF, or OCR for scanned PDFs) — implement the `Adapter` ABC in `convert/adapters/`.
 - **More JD → variant rules** in `apply/mapping/jd_to_variant.py`.
 - **Better field-detection heuristics** for the prefill step.
 
 Before opening a PR:
 
-1. Read the [open-source plan](doc/job_seeker_opensource_plan.md) for direction and the privacy strategy.
+1. Read the [open-source plan](docs/job_seeker_opensource_plan.md) for direction and the privacy strategy.
 2. Respect the **honesty boundaries** in [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md) §6 — no resume inflation, no invented metrics.
-3. Add a test under `convert/tests/` or `apply/tests/` and run `pytest` (24 tests should stay green).
+3. Add a test under `convert/tests/` or `apply/tests/` and run `pytest` (33 tests should stay green).
 4. Use placeholders (`YOUR_NAME`, `your-email@example.com`) in any example content — never real personal data.
 
 ## 📄 License

@@ -7,7 +7,7 @@
 #   chmod +x ./build_resumes.sh
 #   ./build_resumes.sh
 #
-# Requires: xelatex (MacTeX or TeX Live) + the LaTeX packages listed in doc/BUILD_MAC.md.
+# Requires: xelatex (MacTeX or TeX Live) + the LaTeX packages listed in docs/BUILD_MAC.md.
 # Fonts are bundled in LaTeX_Resume_CN/fonts/ and LaTeX_Resume_EN/fonts/ — no system font install needed.
 
 set -euo pipefail
@@ -68,7 +68,7 @@ Install a TeX distribution first:
           brew install --cask basictex        # minimal, then tlmgr install <pkgs>
   Linux:  sudo apt-get install -y texlive-full
 
-See doc/BUILD_MAC.md for the full package list and the AdobeFangsongStd font fix.
+See docs/BUILD_MAC.md for the full package list and the AdobeFangsongStd font fix.
 EOF
     exit 2
   fi

@@ -1,38 +1,33 @@
-****
+# LaTeX Resume Template
 
-##	<center>中英文个人简历</center>
-####	<center>Author: HouJP</center>
-####	<center>E-mail: houjp1992@gmail.com</center>
+A clean, self-contained bilingual (English / 简体中文) résumé template compiled with **XeLaTeX**. All Adobe CJK fonts and the FontAwesome icon set are bundled, so it renders identically on any machine with no system font installation.
 
-****
+## Contents
 
-###	目录
-*	[项目介绍](#intro)
-*	[版本更新](#version)
-*	[使用说明](#usage)
-* 	[参考链接](#link)
+| File | Purpose |
+|------|---------|
+| `sample-resume-en_US-zh_CN.tex` | Sample résumé source (placeholders — replace with your own content) |
+| `resume.cls` | Document class defining the layout and helper macros |
+| `fonts/` | Bundled Adobe CJK fonts (Song / Kai / Hei / FangSong) |
+| `fontawesomesymbols-*.tex` | FontAwesome glyph definitions |
 
-****
+## Usage
 
-###	<a name="intro">项目介绍</a>
+```bash
+# Compile from inside this directory (so resume.cls + fonts resolve):
+cd resume_template
+xelatex -interaction=nonstopmode sample-resume-en_US-zh_CN.tex
+# → sample-resume-en_US-zh_CN.pdf
+```
 
-HouJP的中英文简历，使用latex编译生成。
+Or use the format-conversion pipeline from the repo root:
 
-****
+```bash
+python -m convert --input resume_template/sample-resume-en_US-zh_CN.tex --output outputs/sample.pdf
+```
 
-###	<a name="version">版本更新</a>
+The sample uses `YOUR_NAME` / `your-email@example.com` / `your-org` placeholders — edit the `.tex` to fill in your real details.
 
-*	无更新信息
+## Acknowledgments
 
-****
-
-###	<a name="usage">使用说明</a>
-
-*	无使用说明
-
-
-****
-
-###	<a name="link">参考链接</a>
-
-本简历参考自[billryan的模板](https://github.com/billryan/resume/)。
+This template is derived from [billryan/resume](https://github.com/billryan/resume) (MIT). Bundled fonts retain their original licenses.
