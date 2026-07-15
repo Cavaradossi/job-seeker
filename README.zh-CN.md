@@ -147,7 +147,7 @@ job-seeker/
 设计上安全。`outputs/`（编译产物 + tracker CSV）、`history/`、`docs/experience_bank.md`、以及你真实的 `.tex` 变体都被 gitignore。公开仓库只有干净模板 + 代码，示例内容一律用 `YOUR_NAME` / `your-email@example.com` 占位符。
 
 **Skill 支持哪些编辑器？**
-WorkBuddy（从 `.workbuddy/skills/` 自动加载）、Cursor（把 `docs/skill/job-seeker/` 复制到 `.cursor/skills/`）、或任意编辑器——直接打开 `docs/skill/job-seeker/SKILL.md` 按流程走即可。
+**Cursor** — 打开仓库即可，Skill 已内置在 `.cursor/skills/job-seeker/`（见 [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md)）。**WorkBuddy** 从 `.workbuddy/skills/` 加载。其他编辑器可手动遵循 [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md)。
 
 **能不能从 PDF 或 Word 文档起步，而不是 LaTeX？**
 可以。上传 `.tex` / `.md` / `.docx` / `.pdf` 任一格式，转成任意其他格式，pipeline 会自动路由。PDF 在**入口只提取文本**（用 PyMuPDF）：扫描件/图片型 PDF 没有文本层，会被拒绝，排版与样式也无法还原。请把「PDF 进」理解为「先把内容抢救出来，再用 LaTeX 模板重新排版」。

@@ -127,7 +127,9 @@ job-seeker/
 │   ├── audit.py            Tracker CSV + history log
 │   └── cli.py              python -m apply ...
 ├── docs/                    Build guide, open-source plan, tracker schema, example bank
-├── docs/skill/job-seeker/  Portable Agent Skill (WorkBuddy / Cursor / generic)
+├── docs/skill/job-seeker/  Portable Agent Skill source (sync target)
+├── .cursor/skills/job-seeker/  Cursor project skill (open repo → ready)
+├── .workbuddy/skills/job-seeker/  WorkBuddy project skill
 ├── build_resumes.sh/.ps1   Cross-platform build scripts
 └── requirements.txt        Python deps for convert/ + apply/
 ```
@@ -147,7 +149,7 @@ Only for DOCX / Markdown conversion. `tex → pdf` works with just `xelatex`.
 Yes by design. `outputs/` (compiled PDFs + tracker CSV), `history/`, `docs/experience_bank.md`, and your real `.tex` variants are all gitignored. The public repo contains only the clean template + code, using `YOUR_NAME` / `your-email@example.com` placeholders.
 
 **Which editors does the Skill support?**
-WorkBuddy (auto-loads from `.workbuddy/skills/`), Cursor (copy `docs/skill/job-seeker/` to `.cursor/skills/`), or any editor — just open `docs/skill/job-seeker/SKILL.md` and follow it manually.
+**Cursor** — open the repo; the skill is pre-installed under `.cursor/skills/job-seeker/` (see [`docs/skill/CURSOR.md`](docs/skill/CURSOR.md)). **WorkBuddy** loads from `.workbuddy/skills/`. For other editors, follow [`docs/skill/job-seeker/SKILL.md`](docs/skill/job-seeker/SKILL.md) manually.
 
 **Can I start from a PDF or Word doc instead of LaTeX?**
 Yes. Upload any of `.tex` / `.md` / `.docx` / `.pdf` and convert to any other — the pipeline routes automatically. PDF is **text-only** on the way in (extracted with PyMuPDF): a scanned/image PDF has no text layer and will be rejected, and layout/styling is not recovered. Treat PDF-in as "recover the content, then re-typeset with the LaTeX template."

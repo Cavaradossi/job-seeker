@@ -19,11 +19,11 @@ Use this checklist before, during, and after editing resumes or submitting appli
   - [ ] No RAG stack / Agent workflow buzzwords in Skills
   - [ ] No "Engineering" mashup with pytest/Kafka
   - [ ] Codex/Cursor/Trae listed as AI tools, **not** as programming languages
-- [ ] Open-source project framing (§6.3 of master prompt):
+- [ ] Open-source project framing (§4.3 of SKILL.md):
   - [ ] Title matches "Open-Core Research Workflow Framework" (or CN equivalent)
   - [ ] GitHub URL on its own line, not crowded into a long bullet
   - [ ] No claims of: live trading, order routing, market-specific, signals product
-- [ ] Honesty boundaries (§6.1):
+- [ ] Honesty boundaries (§4.1):
   - [ ] No invented metrics — every number traces to real work
   - [ ] Title is "Technical Lead" (lifecycle), not "Architect" / "Staff"
   - [ ] ETL described as "developed & maintained PDI on existing platform", not "greenfield"
@@ -31,7 +31,9 @@ Use this checklist before, during, and after editing resumes or submitting appli
 
 ## C. After editing, before submitting
 
-- [ ] Ran `./build_resumes.sh` successfully (exit code 0)
+- [ ] Ran `./build_resumes.sh` successfully (exit code 0), **or** compiled the edited `.tex` directly
+- [ ] If using convert: warned user that LaTeX ↔ DOCX is lossy; `.tex → .pdf` is layout source of truth
+- [ ] If using apply: used `--dry-run` or `--rehearse` unless user explicitly requested live browser prefill
 - [ ] Page counts in the summary table match expectations:
   - [ ] `resume_job_en.pdf` is **1 page** (acceptance criterion)
   - [ ] All `resume_jd_*_cn.pdf` are 1 page
@@ -44,7 +46,7 @@ Use this checklist before, during, and after editing resumes or submitting appli
 
 ## D. After submitting an application
 
-- [ ] Appended a row to `outputs/job_application_tracker_domestic.csv` (or international tracker)
+- [ ] Appended a row to `outputs/job_application_tracker.csv` (schema: `docs/tracker_schema.md`)
 - [ ] Company name, role, date, variant used, JD source, status columns filled
 - [ ] Optional: saved the JD text to `docs/jd_mapping/<company>.md` for future reference
 - [ ] Optional: wrote a cover note in `outputs/cover_notes/<company>.txt`

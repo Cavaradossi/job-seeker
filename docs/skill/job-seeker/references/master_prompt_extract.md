@@ -28,21 +28,21 @@ This repo is the MVP of **申职器 (job-seeker)**. Long-term goal:
 
 ### 3.1 MVP (current)
 
-- Multi-variant LaTeX resume sources + one-command compile to `outputs/`
-- `experience_bank.md` unifies bullet material and honesty boundaries
-- JD mapping + customized headlines (Plan A: same body, only headline differs)
-- Tracker CSV, cover notes, variant playbook
+- Clean LaTeX template + bundled CJK fonts; optional multi-variant dirs (`LaTeX_Resume_*`)
+- `experience_bank` pattern + honesty boundaries (example ships depersonalized)
+- `build_resumes.sh` / `.ps1` + CI sample compile
+- **Format conversion** (`convert/`) — Markdown ↔ DOCX ↔ PDF ↔ LaTeX
+- **Browser-assisted apply** (`apply/`) — JD→variant, prefill, human confirm gate
+- Agent Skill for Cursor / WorkBuddy (`.cursor/skills/`, `.workbuddy/skills/`)
 
-### 3.2 Planned (by priority)
+### 3.2 Planned / evolving
 
 | Capability | Notes |
 |------------|-------|
-| Format conversion | Markdown ↔ DOCX ↔ PDF ↔ LaTeX; single "source document" → multi-format export |
-| Browser auto-application | Playwright or IDE Browser: read JD → pick variant → prefill form → upload PDF → record to tracker (**requires explicit user confirmation before submit**) |
-| Open-source extraction | Extract `experience_bank`, build scripts, JD templates, tracker schema into standalone repo or Skill (package name `job-seeker`, CN name `申职器`) |
-| Skill publishing | `SKILL.md` covers: edit resume, compile, application opener, honesty boundary checklist |
-| Cross-platform build | `build_resumes.sh` (macOS/Linux) + `build_resumes.ps1` (Windows) |
-| CI | GitHub Actions: compile PDF artifact on push |
+| More site adapters | Workday/Greenhouse/Lever variants, regional job boards |
+| OCR / scanned PDF ingest | Not yet — PDF-in is text-only via PyMuPDF |
+| Richer JD→variant ML | Current recommender is rule-based keywords |
+| Standalone npm/pip package | Repo is the MVP; extraction ongoing |
 
 ### 3.3 Auto-application design principles (when implemented)
 

@@ -1,171 +1,219 @@
 ---
 name: job-seeker
-description: This skill should be used when editing resumes for a new job description, compiling resume PDFs, updating the application tracker, or checking honesty boundaries before submission. Covers the 申职器 (job-seeker) workflow from experience bank to compiled PDF.
+description: >-
+  Manages LaTeX resume variants for job applications: tailor bullets to a JD,
+  compile PDFs, convert between Markdown/DOCX/PDF/LaTeX, recommend variants,
+  run browser-assisted apply (dry-run/rehearse only unless user confirms submit),
+  update the application tracker, and enforce honesty boundaries. Use when the
+  user mentions 申职器, job-seeker, resume, JD, LaTeX compile, convert resume
+  format, apply to a job posting, or tracker updates.
 agent_created: true
-version: 0.1.0
-tags: [resume, job-search, latex, career,申职器]
+version: 0.2.0
+tags: [resume, job-search, latex, career, convert, apply, 申职器]
 ---
 
-# job-seeker — 申职器 Resume Workflow Skill
+# job-seeker — 申职器
 
-A workflow skill for managing multi-variant LaTeX resumes: pick a variant for a given JD, edit the `.tex`, compile to PDF, verify page count, and update the tracker. Enforces honesty boundaries so bullets never overstate scope, metrics, or titles.
+Workflow skill for multi-variant LaTeX resumes plus format conversion and
+browser-assisted application (human-in-the-loop). Enforces honesty boundaries
+so bullets never overstate scope, metrics, or titles.
 
-This skill is project-scoped — it lives in `.workbuddy/skills/job-seeker/` of the `seeking_job` repo and travels with the repository.
+## Editor install paths
+
+| Editor | Path | Notes |
+|--------|------|-------|
+| **Cursor** | `.cursor/skills/job-seeker/` | Committed in repo — open project and use |
+| WorkBuddy | `.workbuddy/skills/job-seeker/` | Add `agent_created: true` to frontmatter |
+| Portable copy | `docs/skill/job-seeker/` | Mirror for export / generic editors |
+
+Cursor setup guide: `docs/skill/CURSOR.md`.
 
 ## When to use
 
-Trigger this skill when the user:
+Trigger when the user:
 
-- Pastes a new job description and asks for a tailored resume
-- Asks to compile / build / regenerate resume PDFs
-- Wants to add or edit a bullet in `doc/experience_bank.md`
-- Asks to "update the tracker" after submitting an application
-- Wants to verify honesty boundaries before submitting (e.g. "is this bullet OK?")
-- Asks about the 申职器 / job-seeker project itself
+- Pastes a JD and wants a tailored resume or variant recommendation
+- Asks to compile / rebuild resume PDFs (`./build_resumes.sh`)
+- Wants format conversion (`python -m convert ...`)
+- Wants apply dry-run / rehearse (`python -m apply --dry-run ...`)
+- Edits `docs/experience_bank.md` or resume `.tex` bullets
+- Updates the application tracker after submitting
+- Asks whether a bullet violates honesty boundaries
+- Asks about 申职器 / job-seeker
 
-Do **not** trigger this skill for general LaTeX questions unrelated to this repo's resume variants.
+Do **not** trigger for generic LaTeX help unrelated to this repo's resume workflow.
 
-## 1. Repo map (all relative paths)
+## 1. Repo map (relative paths)
 
 ```
-./                                # repo root (seeking_job / 申职器 prototype)
-├── LaTeX_Resume_CN/              # Chinese resume sources (xelatex + zh_CN-Adobefonts)
-│   ├── resume.cls                # local document class (builds on article)
-│   ├── zh_CN-Adobefonts_external.sty  # CJK font config (loads bundled .otf)
-│   ├── linespacing_fix.sty
-│   ├── resume-zh_CN.tex          # full CN version (multi-page, includes research)
-│   ├── resume-zh_job.tex         # CN general (1 page)
-│   ├── resume-zh_backend_ops.tex # CN backend/ops variant
-│   ├── resume-zh_ai_eval.tex     # CN AI/RAG variant
-│   └── resume-zh_jd_<company>.tex # JD-specific CN variants (headline-only diffs)
-├── LaTeX_Resume_EN/              # English resume sources (xelatex, no CJK)
-│   ├── resume.cls
-│   ├── resume_job_en.tex         # EN general (1 page)
-│   ├── resume_backend_ops.tex
-│   ├── resume_ai_eval.tex
-│   └── resume_web3.tex           # Web3 anonymous variant
-├── resume_template/              # clean LaTeX template (no personal info)
-├── doc/
-│   ├── experience_bank.md        # bullet material library — READ FIRST before editing .tex
-│   ├── jd_mapping/               # JD summaries & keywords per company
-│   └── BUILD_MAC.md              # macOS TeX install instructions
-├── outputs/                      # compiled PDFs + tracker + cover notes (gitignored except README)
-├── history/                      # interview & application records (private)
-├── build_resumes.sh              # macOS/Linux build script
-├── build_resumes.ps1             # Windows build script (equivalent behavior)
-└── .github/workflows/build-resumes.yml  # CI: compile on push/PR
+./                              # job-seeker / 申职器
+├── resume_template/            # Public sample template + bundled CJK fonts (always present)
+│   └── sample-resume-en_US-zh_CN.tex
+├── LaTeX_Resume_CN/            # YOUR private CN variants (create locally; gitignored)
+├── LaTeX_Resume_EN/            # YOUR private EN variants (create locally; gitignored)
+├── convert/                    # python -m convert — MD/DOCX/PDF/LaTeX any-to-any
+├── apply/                      # python -m apply — JD→variant, prefill, confirm gate
+├── docs/
+│   ├── experience_bank.md      # Private bullet library (gitignored — copy from .example)
+│   ├── experience_bank.example.md
+│   ├── jd_mapping/             # Private JD notes (gitignored)
+│   ├── BUILD_MAC.md
+│   └── skill/job-seeker/       # This skill (portable mirror)
+├── outputs/                    # Compiled PDFs + tracker (gitignored except README)
+├── history/                    # Apply audit logs (gitignored)
+├── build_resumes.sh            # macOS/Linux — compiles LaTeX_Resume_* if present
+├── build_resumes.ps1           # Windows equivalent
+└── requirements.txt            # Python deps for convert/ + apply/
 ```
+
+**First-time setup:** copy `resume_template/` files into `LaTeX_Resume_CN/` or
+`LaTeX_Resume_EN/`, personalize, then run `./build_resumes.sh`. See root README
+Quick start — do not commit personal `.tex` to the public repo.
 
 ## 2. Standard workflow
 
 ### A. New JD → tailored resume
 
-1. Read the JD (user-pasted text or `doc/jd_mapping/<company>.md`)
-2. Read `doc/experience_bank.md` to pick bullets — **do not invent**
-3. Default to **Plan A**: copy `resume-zh_job.tex` → only change the `\centerline` headline → save as `resume-zh_jd_<company>.tex`
-4. Build: `./build_resumes.sh`
-5. Verify page count from the script's summary table — JD variants must be 1 page
-6. Update `outputs/job_application_tracker_domestic.csv` and `outputs/cover_notes/<company>.txt`
+1. Read JD (pasted text, URL, or `docs/jd_mapping/<company>.md`)
+2. Read `docs/experience_bank.md` — **do not invent bullets**
+3. Recommend variant: `python -m apply --jd-file <file> --dry-run` or use
+   `references/variant_playbook.md`
+4. **Plan A (default):** copy general variant `.tex` → change only `\centerline`
+   headline → save as `resume-zh_jd_<company>.tex`
+5. Build: `./build_resumes.sh` (or compile single file in `resume_template/`)
+6. Verify page counts in script output — JD variants target **1 page**
+7. Update tracker via `apply` audit or manually append
+   `outputs/job_application_tracker.csv`
 
 ### B. Edit bullets or skills
 
-1. If the change affects multiple resumes, edit `doc/experience_bank.md` first
-2. Apply the same edit to each affected `LaTeX_Resume_*/*.tex`
-3. Run `./build_resumes.sh` and check page counts — especially `resume_job_en.pdf` (must stay 1 page)
+1. If multi-resume impact, edit `docs/experience_bank.md` first
+2. Apply to each affected `LaTeX_Resume_*/*.tex`
+3. `./build_resumes.sh` — check `resume_job_en` stays **1 page**
 
-### C. After submission
+### C. Format conversion
 
-- Append a row to `outputs/job_application_tracker_domestic.csv` (or the international tracker)
-- Optional: write a debrief in `history/job_search_2025_2026.md`
+```bash
+python -m convert --input path/to/resume.tex --output outputs/resume.pdf
+python -m convert --list-routes
+```
 
-## 3. Variant selection table
+- **Source of truth for layout:** `.tex → .pdf` via `xelatex`
+- LaTeX ↔ DOCX is **lossy** — warn user; macros/icons do not survive
+- PDF → Markdown extracts text only (no OCR for scanned PDFs)
 
-| Variant | Source `.tex` | Output PDF | When to use |
-|---------|---------------|------------|-------------|
-| CN full | `LaTeX_Resume_CN/resume-zh_CN.tex` | `resume-zh_CN.pdf` | Multi-page version with research, for senior/academic-leaning roles |
-| CN general | `LaTeX_Resume_CN/resume-zh_job.tex` | `resume_job_cn.pdf` | Default for domestic dev roles (1 page) |
-| CN backend/ops | `LaTeX_Resume_CN/resume-zh_backend_ops.tex` | `resume_backend_ops_cn.pdf` | Backend / SRE / ops roles |
-| CN AI/RAG | `LaTeX_Resume_CN/resume-zh_ai_eval.tex` | `resume_ai_eval_cn.pdf` | AI eval, RAG, LLM application roles |
-| CN JD-specific | `LaTeX_Resume_CN/resume-zh_jd_<company>.tex` | `resume_jd_<company>_cn.pdf` | Headline-only customization for a specific company |
-| EN general | `LaTeX_Resume_EN/resume_job_en.tex` | `resume_job_en.pdf` | Overseas / English-speaking roles (1 page) |
-| EN backend/ops | `LaTeX_Resume_EN/resume_backend_ops.tex` | `resume_backend_ops.pdf` | English backend/ops roles |
-| EN AI/RAG | `LaTeX_Resume_EN/resume_ai_eval.tex` | `resume_ai_eval.pdf` | English AI eval/benchmark roles |
-| Web3 | `LaTeX_Resume_EN/resume_web3.tex` | `resume_web3.pdf` | Anonymous (pseudonym) for crypto/Web3 |
+Details: `convert/README.md`.
 
-Full variant guidance including openers and DM templates: see `references/variant_playbook.md`.
+### D. Apply (rehearse / prefill)
 
-## 4. Honesty boundaries (thematic — from master prompt §6)
+```bash
+export JOB_SEEKER_NAME="Your Name"
+export JOB_SEEKER_EMAIL="you@example.com"
+python -m apply --jd-file apply/samples/sample_jd.html --dry-run
+python -m apply --url https://example.com/jobs/123 --rehearse
+```
 
-> The original master prompt labels these "G1–G6" but the actual rules are organized thematically as §6.1–§6.4. Use the thematic structure, not a fabricated numbered list.
+**Iron rules:**
 
-### §6.1 Content authenticity
+- `submit()` always blocks on human `confirm()` — **never auto-submit**
+- Boss直聘 / LinkedIn: `tos_blocks_automation=True` → open page + show data only
+- Credentials via env vars only — never commit to repo
 
-- Do not invent metrics. Numbers in bullets must come from real work.
-- Do not inflate titles. Use the actual role title (e.g. "Technical Lead" managing a software lifecycle) — not "Architect" or "Staff Engineer".
-- Describe scope accurately: "maintained and extended an existing platform" — not "built it from scratch".
-- For any ML / retrieval work, cite the real parameters you actually used (e.g. TopK, similarity threshold, chunk strategy); do not claim capabilities not implemented.
-- Distinguish a small POC (a few connected nodes/steps) from a production "autonomous agent" — don't inflate a prototype into a system.
+Details: `apply/README.md`.
 
-### §6.2 Skills-line discipline
+### E. After submission
 
-- Skills section lists **languages, dev toolchain, and general-purpose productivity tools** only — kept short and scannable.
-- Do **not** put project-specific tech stacks, domain frameworks, or workflow architectures in Skills — those belong in the relevant project bullet where the context lives.
-- Do **not** pass off AI coding assistants or editors as programming languages (list them as tools, if at all — never where a language belongs).
-- Treat the Skills line as a keyword index recruiters skim, not a place to signal seniority or niche expertise.
+- Tracker row in `outputs/job_application_tracker.csv` (schema: `docs/tracker_schema.md`)
+- Optional: `history/apply_<date>.log` via `apply` audit
+- Optional: cover note in `outputs/cover_notes/<company>.txt`
 
-### §6.3 Source honesty (project framing)
+## 3. Variant selection
 
-- When referencing personal open-source projects, describe them by what they actually do — not aspirationally.
-- Do not anchor the resume on any single side project; it is one of multiple data points.
-- Pick a neutral, accurate descriptor and avoid inflating scope or domain (don't reframe a small tool as a "platform", "system", or "product" unless it truly is).
-- Cite the real GitHub URL on its own line; don't crowd it into a long bullet (prevents PDF line-wrap issues).
+| Variant | Typical source `.tex` | Output PDF | When |
+|---------|----------------------|------------|------|
+| Sample / demo | `resume_template/sample-resume-en_US-zh_CN.tex` | same dir | First compile, CI |
+| CN general | `LaTeX_Resume_CN/resume-zh_job.tex` | `resume_job_cn.pdf` | Domestic dev (1 pg) |
+| CN backend/ops | `LaTeX_Resume_CN/resume-zh_backend_ops.tex` | `resume_backend_ops_cn.pdf` | Ops / SRE |
+| CN AI/RAG | `LaTeX_Resume_CN/resume-zh_ai_eval.tex` | `resume_ai_eval_cn.pdf` | AI / RAG roles |
+| CN JD | `LaTeX_Resume_CN/resume-zh_jd_<co>.tex` | `resume_jd_<co>_cn.pdf` | Headline-only JD |
+| EN general | `LaTeX_Resume_EN/resume_job_en.tex` | `resume_job_en.pdf` | English roles (1 pg) |
+| EN backend/ops | `LaTeX_Resume_EN/resume_backend_ops.tex` | `resume_backend_ops.pdf` | EN ops |
+| EN AI/RAG | `LaTeX_Resume_EN/resume_ai_eval.tex` | `resume_ai_eval.pdf` | EN AI eval |
+| Web3 | `LaTeX_Resume_EN/resume_web3.tex` | `resume_web3.pdf` | Anonymous crypto |
 
-### §6.4 Length
+Full openers/DM templates: `references/variant_playbook.md`.
 
-- CN JD-specific variants: target **1 page** (use `enumitem` to compress itemize).
-- EN `resume_job_en`: target **1 page** (compress bullet wording + `enumitem`).
-- CN full `resume-zh_CN`: multi-page is OK (includes research section).
+## 4. Honesty boundaries
+
+### §4.1 Content authenticity
+
+- No invented metrics — numbers must trace to real work
+- No inflated titles (e.g. "Technical Lead" ≠ "Staff Engineer")
+- "Maintained/extended existing platform" ≠ "built from scratch"
+- ML/retrieval: cite real parameters (TopK, thresholds, chunk strategy)
+- POC (few workflow nodes) ≠ "autonomous agent" or production system
+
+### §4.2 Skills-line discipline
+
+- Skills = languages, dev toolchain, general AI productivity tools — short list
+- Do **not** put project stacks (RAG, Kafka, etc.) in Skills — put in project bullets
+- AI assistants (Cursor, Codex, Trae) are **tools**, not programming languages
+
+### §4.3 Open-source project framing
+
+- Describe side projects by what they actually do — neutral, accurate domain
+- GitHub URL on its **own line** (avoid PDF line-wrap overflow)
+- Do not reframe a research toolkit as live trading / order routing / signals product
+
+### §4.4 Length
+
+- JD variants + EN general: **1 page** (`enumitem` + tight bullets)
+- Full CN with research section: multi-page OK
 
 ## 5. Build & verify
 
 ```bash
-chmod +x ./build_resumes.sh
-./build_resumes.sh
+chmod +x ./build_resumes.sh && ./build_resumes.sh
 ```
 
-The script prints a page-count table at the end. Critical checks:
+Critical page-count checks when `LaTeX_Resume_*` exists:
 
-- `resume_job_en.pdf` must be **1 page** (acceptance criterion)
-- All JD variants must be **1 page**
-- `resume-zh_CN.pdf` may be multi-page
+- `resume_job_en.pdf` → **1 page**
+- `resume_jd_*_cn.pdf` → **1 page**
 
-If `xelatex` is missing, the script exits with code 2 and points to `doc/BUILD_MAC.md`.
+If `LaTeX_Resume_CN/` missing, script fails — user must create variants first
+or compile `resume_template/` directly with `xelatex`.
+
+Missing `xelatex` → exit 2, see `docs/BUILD_MAC.md`.
 
 ## 6. References
 
-| Reference | Path | When to load |
-|-----------|------|--------------|
-| Master prompt extract | `references/master_prompt_extract.md` | When you need the full honesty rules or product vision |
-| Variant playbook | `references/variant_playbook.md` | When picking a variant or writing an opener/DM |
-| Checklist | `checklist.md` | Before submitting any application |
-| Build script | `scripts/build_resumes.sh` (symlink to `../../../../build_resumes.sh`) | When compiling |
+| File | When to load |
+|------|--------------|
+| `references/master_prompt_extract.md` | Full vision + extended rules |
+| `references/variant_playbook.md` | Variant pick + opener templates |
+| `checklist.md` | Before submit / before PR |
+| `docs/skill/CURSOR.md` | Cursor-specific tips |
+| `convert/README.md` | Conversion routes & lossy warnings |
+| `apply/README.md` | Apply adapters & confirm gate |
 
-## 7. Placeholders (for open-source / skill examples)
+## 7. Placeholders (public repo / examples)
 
-When generating **example** content for the open-source mirror (`docs/skill/job-seeker/`), always use placeholders:
+Use `YOUR_NAME`, `your-email@example.com`, `your-org/job-seeker`,
+`YOUR_OPEN_SOURCE_PROJECT`, `COMPANY_X` — never real maintainer PII in examples.
 
-- Name: `YOUR_NAME`
-- Email: `your-email@example.com`
-- GitHub: `your-org/job-seeker`
-- Project name: `YOUR_OPEN_SOURCE_PROJECT`
+## 8. Agent behavior (Cursor)
 
-Never write the maintainer's real name, real email, or real GitHub into example content.
+1. **Read before write:** `docs/experience_bank.md` + target `.tex`
+2. **Minimal diff:** do not refactor `convert/` or `apply/` core unless asked
+3. **No silent commit/push** — user must request explicitly
+4. **Relative paths only** — no `D:\project\...` or absolute home paths in docs
+5. **Verify builds** after `.tex` edits when `xelatex` is available
+6. **Apply safety:** default to `--dry-run` / `--rehearse`; live submit only with explicit user `y`
 
-## 8. Out of scope
+## 9. Out of scope
 
-This skill does **not**:
-
-- Auto-submit job applications (Phase 3, human-in-the-loop only)
-- Convert between Markdown / DOCX / PDF / LaTeX (Phase 2)
-- Push to public GitHub repos without explicit user confirmation
-- Modify `.tex` body content without first reading `doc/experience_bank.md`
+- Auto-submitting applications without user confirmation
+- Committing personal data (real tracker rows, experience bank, private `.tex`)
+- OCR for scanned PDFs (not implemented)
+- Modifying resume bullets without reading `docs/experience_bank.md`

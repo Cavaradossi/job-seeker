@@ -22,9 +22,10 @@ If you add a new document, **add a row to the table below** — that rule is enf
 
 | Document | What it covers | Audience |
 |----------|----------------|----------|
-| [`skill/job-seeker/SKILL.md`](skill/job-seeker/SKILL.md) | The portable Agent Skill: full workflow + honesty boundaries | AI editors (WorkBuddy / Cursor / generic) |
-| [`skill/job-seeker/checklist.md`](skill/job-seeker/checklist.md) | Per-application checklist the Skill follows | AI editors |
-| [`skill/job-seeker/references/`](skill/job-seeker/references/) | Master-prompt extract + variant playbook the Skill draws on | AI editors |
+| [`skill/CURSOR.md`](skill/CURSOR.md) | Cursor setup — skill loads from `.cursor/skills/` | Cursor users |
+| [`skill/job-seeker/SKILL.md`](skill/job-seeker/SKILL.md) | Agent Skill: workflow + honesty boundaries | AI editors |
+| [`skill/job-seeker/checklist.md`](skill/job-seeker/checklist.md) | Per-application checklist | AI editors |
+| [`skill/job-seeker/references/`](skill/job-seeker/references/) | Master-prompt extract + variant playbook | AI editors |
 
 ---
 
