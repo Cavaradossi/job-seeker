@@ -120,6 +120,8 @@ def main(argv=None) -> int:
     g.add_argument("--url", help="JD URL to read")
     g.add_argument("--jd-file", help="local JD file (html/md/txt) — offline alternative to --url")
     ap.add_argument("--variant", help="resume variant name/path (default: auto-recommend)")
+    ap.add_argument("--lang", help="your primary resume language (en|zh|ru|ar|ja|...); "
+                                    "fallback base when a JD's script has no native template yet")
     ap.add_argument("--dry-run", action="store_true",
                     help="fetch JD + recommend variant + render PDF; no browser, no submit")
     ap.add_argument("--rehearse", action="store_true",
@@ -192,8 +194,10 @@ def main(argv=None) -> int:
     jd = read_jd(adapter, args)
     print_jd(jd)
 
-    rec = recommend_variant(jd)
+    rec = recommend_variant(jd, preferred_script=getattr(args, "lang", None))
     variant = args.variant or rec.variant
+    if rec.warning:
+        print(f"[apply] WARNING: {rec.warning}")
     if rec.matched_keywords:
         print(f"[apply] recommended variant: {rec.variant}  ({rec.reason}) "
               f"[matched: {', '.join(rec.matched_keywords)}]")
