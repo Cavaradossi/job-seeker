@@ -198,6 +198,15 @@ requires no paid subscription or specific model.
 The reviewer pass is advisory — it never auto-edits. It runs the same honesty
 rules as the drafter; its job is to catch what a single pass misses.
 
+You can also run the heuristic honesty linter on any variant before sending:
+
+```bash
+python -m apply --honesty-check LaTeX_Resume_EN/sample-resume-en_US-zh_CN.tex
+```
+
+It flags vague superlatives, absolute claims, and scope-inflation phrasing
+(honesty boundary §6.1). Advisory only — confirm against checklist.md §E.
+
 ## 5. Build & verify
 
 ```bash

@@ -1,4 +1,4 @@
-.PHONY: help init build convert fidelity apply-dryrun test clean
+.PHONY: help init build convert fidelity apply-dryrun test clean sync
 
 PY ?= python
 
@@ -10,6 +10,7 @@ help: ## Show available targets
 	@echo "  make fidelity      print the 4x4 format fidelity matrix"
 	@echo "  make apply-dryrun  JD -> variant recommendation, no browser (override URL=)"
 	@echo "  make test          run pytest"
+	@echo "  make sync          re-sync .cursor/.codex/.workbuddy skill mirrors from docs/skill/job-seeker/"
 	@echo "  make clean         remove build artifacts"
 
 init: ## Scaffold private resume dirs + experience bank + smoke compile
@@ -32,6 +33,9 @@ apply-dryrun: ## JD -> variant recommendation, no browser (override URL=)
 
 test: ## Run the test suite
 	$(PY) -m pytest -q
+
+sync: ## Re-sync skill mirrors from the canonical source (run after any SKILL.md edit)
+	./scripts/sync_skills.sh
 
 clean: ## Remove build artifacts (PDFs/DOCX in outputs/, LaTeX aux)
 	rm -f outputs/*.pdf outputs/*.docx
