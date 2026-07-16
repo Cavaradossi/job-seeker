@@ -88,6 +88,12 @@ Quick start — do not commit personal `.tex` to the public repo.
    `references/variant_playbook.md`
 4. **Plan A (default):** copy general variant `.tex` → change only `\centerline`
    headline → save as `resume-zh_jd_<company>.tex`
+   - **Or automate the drafter pass (Phase 4):** `python -m job_seeker tailor
+     --jd-file <file>` scores your experience-bank bullets against the JD and
+     writes a tailored variant `.tex` (it substitutes the `% >>> TAILOR BLOCK
+     <SCRIPT> START/END` region of the base template — never invents bullets).
+     Pair with `python -m job_seeker cover-letter --jd-file <file>` for a
+     script-aware cover-letter DRAFT.
 5. Build: `./build_resumes.sh` (Windows: `.\build_resumes.ps1`) or compile single file in `resume_template/`
 6. Verify page counts in script output — JD variants target **1 page**
 7. Update tracker via `apply` audit or manually append
@@ -194,6 +200,9 @@ requires no paid subscription or specific model.
 
 1. **Drafter.** Produce the tailored `.tex` variant from the chosen template +
    experience bank, cutting/reweighting bullets for this JD. Keep it honest (§4.1).
+   The `python -m job_seeker tailor --jd-file <jd>` command (Phase 4) automates
+   this pass offline: it scores your experience-bank bullets by JD-keyword
+   overlap and substitutes them into the base template's marked experience block.
 2. **Reviewer (separate turn / fresh context).** Re-read ONLY the JD + the
    drafted variant. Critique, do not flatter:
    - Weak verbs, clichés, filler ("utilized", "leveraged", "various").
@@ -287,6 +296,16 @@ Latin/Cyrillic/Arabic/Hebrew are font + bidi work, not a rewrite.
     LTR glyph coverage only (text is visible, just not reordered).
 - **Portals are language-aware.** `apply/portals.yaml` entries may carry
   `languages:` / `scripts:` so `--recommend-platforms` can match by language too.
+- **Moat audit (v0.5).** `python -m job_seeker i18n-audit` statically scans the
+  toolkit for leftover ASCII-only tokenizers, hardcoded CN/EN variant pairs, and
+  reintroduced CJK-only / single-script framing — a CI-ready guard that the
+  script-agnostic moat holds (`--strict` exits non-zero on ERROR). On the current
+  tree it reports 0 ERROR / 0 WARN.
+- **Language-tagged variant manifests (v0.5).** Each `LaTeX_Resume_<SCRIPT>/` may
+  carry a `variant.json` (`{name, script, language, base_template}`). Add a new
+  script variant in one command — `python -m job_seeker init-variant --script RU`
+  scaffolds `LaTeX_Resume_RU/` from `resume_template/` + writes the manifest;
+  `python -m job_seeker list-variants` shows what you have.
 
 This is the real moat vs English-first tools: we assume *any language*, not just EN.
 
