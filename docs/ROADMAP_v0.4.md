@@ -41,10 +41,17 @@ identity.
 
 Proposed one-liner (fits in repo Description ≤ 350 chars):
 
-> **job-seeker** — the offline, honesty-bound resume toolkit for the Chinese-
-> speaking world. Bring any resume in any format; get a clean CJK LaTeX / PDF /
-> DOCX output. No Claude Code subscription, no scraping, no resume inflation.
-> Works with whatever AI editor you already use (Cursor, Codex, WorkBuddy).
+> **job-seeker** — the offline, honesty-bound, **CJK-first** resume toolkit. Bring
+> a resume in **any format and any language**; get a clean **bilingual** LaTeX /
+> PDF / DOCX with first-class Chinese↔English i18n and pixel-perfect CJK
+> typography. No subscription, no scraping, no inflation. Works with whatever AI
+> editor you already use (Cursor / Codex / WorkBuddy).
+
+> **Why "CJK-first", not "for the Chinese-speaking world":** Chinese-coding is the
+> *hard problem we solve best* (CJK typography, zh/en parity), which yields a tool
+> useful to **anyone** who needs a bilingual / CJK-aware resume — overseas Chinese,
+> returnees, global-ATS applicants — not a walled local garden. This is structurally
+> hard for an English-first tool like `ai-job-search` to copy, so it is a real moat.
 
 This single sentence carries all four moats (CJK, any-format, honesty, free) and
 the new multi-agent reality (see §6).
@@ -167,8 +174,8 @@ rotting (the exact "doc shit-mountain" risk v0.3 governance was built to stop):
 
 Not "more stars than ai-job-search." Success = when someone searches *"AI job
 search GitHub"*, `job-seeker` appears alongside it with a one-line identity they
-instantly understand: *the offline, honesty-bound, CJK-first, any-format resume
-toolkit that works with whatever AI editor they already use.*
+instantly understand: *the offline, honesty-bound, CJK-first, bilingual, any-format
+resume toolkit that works with whatever AI editor they already use.*
 
 ---
 
