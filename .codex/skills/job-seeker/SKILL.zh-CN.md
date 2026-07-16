@@ -181,7 +181,35 @@ cd resume_template
 xelatex -interaction=nonstopmode sample-resume-en_US-zh_CN.tex
 ```
 
-## 6. Agent 行为（Cursor）
+## 6. i18n / 任意文字系统设计
+
+job-seeker 是**脚本无关（script-agnostic）**的：每种文字系统都是一等公民——
+汉字（CJK）、拉丁、西里尔、阿拉伯、希伯来、天城文（Devanagari）、希腊，乃至更多。
+CJK 是**试验场**（内置 CJK 字体 + xelatex 是最难的部分）；一旦跑通，拉丁 / 西里尔 /
+阿拉伯 / 希伯来只是字体 + bidi 的工作，而非重写。
+
+- **文本路径与脚本无关。** `convert/` 流水线保留任意 Unicode 脚本；变体解析器与
+  技能缺口（`--upskill`）分词器是**脚本感知**的（非 ASCII-only），非拉丁 JD 也能正确处理。
+- **变体目录按脚本打标签。** `LaTeX_Resume_<SCRIPT>/`——可自建
+  （`AR`/`RU`/`JA`/……）；`build_resumes.sh` 与解析器自动识别。
+- **渲染（v0.4）：** `resume.cls` 自动加载 `fonts_any_script.sty`，它通过
+  `ucharclasses` **按 Unicode 区块切换字体**——无需改动你的 `.tex`。`fonts/Noto/`
+  内置 **Noto** 字体（由 `scripts/fetch_noto_fonts.sh` 拉取），为西里尔 / 希腊 /
+  阿拉伯 / 希伯来 / 天城文提供**字形覆盖（无豆腐块）**，全部按 **LTR** 排布。
+  已验证：*任意单一*文字系统的简历都能干净渲染；*双语*简历（拉丁 + 一种非拉丁脚本，
+  如阿拉伯文 + 英文）在每段脚本之后都能正确恢复主字体。
+  - **已知限制（v0.4）：** 同一文档**内联混排两种及以上非拉丁脚本**可能让字体卡在
+    上一个脚本——这是 `ucharclasses` 在多个脚本类同时激活时的已知脆弱性。简历场景
+    罕见；建议每份简历只用一种脚本（或拉丁 + 一种脚本）。
+  - **RTL 排序**（阿拉伯 / 希伯来正确的从右到左流向）是已规划的 **v0.5** 实验项——
+    `bidi`/`polyglossia` 与 `resume.cls` 的 `titlesec`/`hyperref`/`enumitem` 排版宏
+    冲突，因此 v0.4 只交付 LTR 字形覆盖（文字可见，只是未重排）。
+- **门户按语言感知。** `apply/portals.yaml` 条目可带 `languages:` / `scripts:`，
+  使 `--recommend-platforms` 也能按语言匹配。
+
+这才是相对「英文优先」工具真正的护城河：我们假设*任意语言*，而不只是英文。
+
+## 7. Agent 行为（Cursor）
 
 1. 改 bullet 前读 `docs/experience_bank.md`
 2. 不擅自重构 `convert/`、`apply/` 核心
@@ -189,11 +217,11 @@ xelatex -interaction=nonstopmode sample-resume-en_US-zh_CN.tex
 4. 文档与命令兼顾 Windows（`.\build_resumes.ps1`、`\` 路径）与 Unix
 5. 默认 `apply --dry-run`； live 提交须用户明确确认
 
-## 7. 占位符
+## 8. 占位符
 
 示例用 `YOUR_NAME`、`your-email@example.com`、`your-org/job-seeker`，勿写入真实 PII。
 
-## 8. 不在范围内
+## 9. 不在范围内
 
 - 未经确认自动提交投递
 - 把 tracker、experience bank、私有 `.tex` 提交到公开仓库

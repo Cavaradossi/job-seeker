@@ -1,0 +1,96 @@
+% fonts_any_script.sty — any-script font fallback for job-seeker resumes.
+%
+% Auto font-switching by Unicode block so ANY writing system renders with no
+% markup changes to your .tex. Every script is a first-class citizen:
+%   * Han (CJK)  -> handled by xeCJK (zh_CN-Adobefonts_external)
+%   * Latin / Cyrillic / Greek / Arabic / Hebrew / Devanagari -> handled here
+%     via `ucharclasses` (font switches automatically per Unicode block)
+%
+% GLYPH COVERAGE ONLY (v0.4): RTL scripts (Arabic, Hebrew) become visible (no
+% tofu) but are still laid out LEFT-TO-RIGHT. True RTL ordering is the v0.5
+% experimental track (bidi/polyglossia) because it conflicts with resume.cls's
+% titlesec/hyperref/enumitem. See docs/skill/job-seeker/SKILL.md
+% ("Any-script rendering").
+%
+% Fonts: bundled Noto families under fonts/Noto/ (fetched by
+% scripts/fetch_noto_fonts.sh). Each \newfontfamily is guarded by \IfFileExists
+% so a MISSING font file does NOT break the build — that script simply tofus
+% until the fonts are bundled. Cyrillic/Greek are also bundled (NotoSans) even
+% though the default main font mostly covers them: the TeX Gyre Termes main font
+% has gaps (e.g. GREEK SMALL LETTER ETA WITH TONOS, U+03AE), so Noto guarantees
+% zero tofu for every script regardless of the chosen main font.
+
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{fonts_any_script}[2026/07/16 any-script font fallback via ucharclasses]
+
+\RequirePackage{fontspec}
+\RequirePackage[
+  Arabic, ArabicSupplement, ArabicExtendedA,
+  Hebrew,
+  Cyrillic,
+  GreekAndCoptic, GreekExtended,
+  Devanagari
+]{ucharclasses}
+
+% --- Noto font families (bundled; Path is relative to the compiling .tex dir) ---
+\IfFileExists{fonts/Noto/NotoSans-Regular.ttf}{
+  \newfontfamily\cyrillicfont[Path=fonts/Noto/, Script=Cyrillic,
+    UprightFont=NotoSans-Regular.ttf, BoldFont=NotoSans-Regular.ttf,
+    ItalicFont=NotoSans-Regular.ttf, BoldItalicFont=NotoSans-Regular.ttf]{NotoSansCyrillic}
+  \newfontfamily\greekfont[Path=fonts/Noto/, Script=Greek,
+    UprightFont=NotoSans-Regular.ttf, BoldFont=NotoSans-Regular.ttf,
+    ItalicFont=NotoSans-Regular.ttf, BoldItalicFont=NotoSans-Regular.ttf]{NotoSansGreek}
+}{}
+
+\IfFileExists{fonts/Noto/NotoSansArabic-Regular.ttf}{
+  \newfontfamily\arabicfont[Path=fonts/Noto/, Script=Arabic,
+    UprightFont=NotoSansArabic-Regular.ttf, BoldFont=NotoSansArabic-Regular.ttf,
+    ItalicFont=NotoSansArabic-Regular.ttf, BoldItalicFont=NotoSansArabic-Regular.ttf]{NotoSansArabic}
+}{}
+
+\IfFileExists{fonts/Noto/NotoSansHebrew-Regular.ttf}{
+  \newfontfamily\hebrewfont[Path=fonts/Noto/, Script=Hebrew,
+    UprightFont=NotoSansHebrew-Regular.ttf, BoldFont=NotoSansHebrew-Regular.ttf,
+    ItalicFont=NotoSansHebrew-Regular.ttf, BoldItalicFont=NotoSansHebrew-Regular.ttf]{NotoSansHebrew}
+}{}
+
+\IfFileExists{fonts/Noto/NotoSansDevanagari-Regular.ttf}{
+  \newfontfamily\devanagarifont[Path=fonts/Noto/, Script=Devanagari,
+    UprightFont=NotoSansDevanagari-Regular.ttf, BoldFont=NotoSansDevanagari-Regular.ttf,
+    ItalicFont=NotoSansDevanagari-Regular.ttf, BoldItalicFont=NotoSansDevanagari-Regular.ttf]{NotoSansDevanagari}
+}{}
+
+% --- Wire transitions: switch font on ENTERING a block, restore \rmfamily on LEAVE ---
+% \setTransitionsFor{Name}{enter}{leave} switches to the script font when a
+% Unicode block is entered and back to the main (roman) font on leave.
+%
+% VERIFIED BEHAVIOUR (v0.4):
+%   * A resume in ANY single writing system renders with no tofu (LTR).
+%   * A bilingual resume (Latin + ONE non-Latin script, e.g. Arabic+English,
+%     Hebrew+English, Cyrillic/Greek/Devanagari+English) renders correctly —
+%     the main font is restored after each script run.
+%   * KNOWN LIMITATION: inline mixing of TWO OR MORE non-Latin scripts in one
+%     document can leave the font stuck on the previous script (a known
+%     ucharclasses fragility when several script classes are active at once).
+%     This is rare for resumes and is the v0.5 experimental track alongside RTL.
+\IfFileExists{fonts/Noto/NotoSans-Regular.ttf}{
+  \setTransitionsFor{Cyrillic}{\cyrillicfont}{\rmfamily}
+  \setTransitionsFor{GreekAndCoptic}{\greekfont}{\rmfamily}
+  \setTransitionsFor{GreekExtended}{\greekfont}{\rmfamily}
+}{}
+\IfFileExists{fonts/Noto/NotoSansArabic-Regular.ttf}{
+  \setTransitionsFor{Arabic}{\arabicfont}{\rmfamily}
+  \setTransitionsFor{ArabicSupplement}{\arabicfont}{\rmfamily}
+  \setTransitionsFor{ArabicExtendedA}{\arabicfont}{\rmfamily}
+}{}
+\IfFileExists{fonts/Noto/NotoSansHebrew-Regular.ttf}{
+  \setTransitionsFor{Hebrew}{\hebrewfont}{\rmfamily}
+}{}
+\IfFileExists{fonts/Noto/NotoSansDevanagari-Regular.ttf}{
+  \setTransitionsFor{DevanagariPreMarks}{\devanagarifont}{\rmfamily}
+  \setTransitionsFor{DevanagariPostMarks}{\devanagarifont}{\rmfamily}
+  \setTransitionsFor{DevanagariDanDa}{\devanagarifont}{\rmfamily}
+  \setTransitionsFor{DevanagariPostDanDa}{\devanagarifont}{\rmfamily}
+}{}
+
+\endinput

@@ -268,10 +268,22 @@ Latin/Cyrillic/Arabic/Hebrew are font + bidi work, not a rewrite.
   script-aware (not ASCII-only), so non-Latin JDs are handled correctly.
 - **Variant dirs are script-tagged.** `LaTeX_Resume_<SCRIPT>/` — add your own
   (`AR`/`RU`/`JA`/…); `build_resumes.sh` and the resolver pick them up automatically.
-- **Rendering (v0.4):** bundled fonts + `ucharclasses` give **glyph coverage** (no
-  tofu) for Cyrillic/Greek/Arabic/Hebrew/Devanagari in LTR. **RTL ordering** for
-  Arabic/Hebrew is a tracked **v0.5** experimental item (bidi conflicts with
-  `resume.cls`'s section-rule packages).
+- **Rendering (v0.4):** `resume.cls` auto-loads `fonts_any_script.sty`, which uses
+  `ucharclasses` to switch font **per Unicode block — no markup changes to your
+  `.tex`**. Bundled **Noto** fonts in `fonts/Noto/` (fetched by
+  `scripts/fetch_noto_fonts.sh`) give **glyph coverage (no tofu)** for
+  Cyrillic / Greek / Arabic / Hebrew / Devanagari, all laid out **LTR**. Verified:
+  a resume in *any single* writing system renders cleanly, and a *bilingual* resume
+  (Latin + one non-Latin script, e.g. Arabic+English) restores the main font
+  correctly after each script run.
+  - **Known limitation (v0.4):** inline mixing of **two or more non-Latin scripts**
+    in one document can leave the font stuck on the previous script — a known
+    `ucharclasses` fragility when several script classes are active. Rare for
+    resumes; keep each resume to one script (or Latin + one script).
+  - **RTL ordering** for Arabic/Hebrew (correct right-to-left flow) is a tracked
+    **v0.5** experimental item — `bidi`/`polyglossia` conflict with
+    `resume.cls`'s `titlesec`/`hyperref`/`enumitem` layout macros, so v0.4 ships
+    LTR glyph coverage only (text is visible, just not reordered).
 - **Portals are language-aware.** `apply/portals.yaml` entries may carry
   `languages:` / `scripts:` so `--recommend-platforms` can match by language too.
 

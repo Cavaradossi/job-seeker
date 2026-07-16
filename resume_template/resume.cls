@@ -25,6 +25,12 @@
   SmallCapsFont = Fontin-SmallCaps
 ]{texgyretermes}
 
+% Any-script font fallback: auto font-switch per Unicode block so Cyrillic,
+% Greek, Arabic, Hebrew, Devanagari, ... render with no tofu and no markup
+% changes. CJK is handled by xeCJK (zh_CN-Adobefonts_external). RTL scripts are
+% laid out LTR in v0.4 (full RTL is the v0.5 experimental track).
+\RequirePackage{fonts_any_script}
+
 \RequirePackage[
 	a4paper,
 	left=0.8in,
