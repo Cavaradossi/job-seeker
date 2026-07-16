@@ -25,15 +25,18 @@ apply/
 │   ├── base.py                # SiteAdapter ABC + JDText: read_jd / prefill_form / submit
 │   ├── workday_generic.py     # Workday / Greenhouse / Lever / plain HTML (requests + bs4 + Playwright)
 │   ├── boss_zhipin.py         # Boss直聘 (tos_blocks_automation=True)
-│   └── linkedin.py            # LinkedIn  (tos_blocks_automation=True)
+│   ├── linkedin.py            # LinkedIn  (tos_blocks_automation=True)
+│   └── registry.py            # resolve_adapter(url) / load_adapter / recommend_platforms — data-driven
+├── portals.yaml               # platform registry (id/name/url_patterns/regions/tos/adapter)
 ├── mapping/
 │   ├── jd_to_variant.py       # rule-based JD keywords -> variant name
 │   └── variant_renderer.py    # locate .tex -> compile PDF (reuses convert.LatexToPdf)
 ├── confirm.py                 # the human-in-the-loop gate (blocks; safe in CI)
 ├── audit.py                   # tracker CSV + history debrief
+├── upskill.py                 # --upskill: JD-vs-resume skill-gap analysis
 ├── cli.py                     # python -m apply ...
 ├── samples/sample_jd.html     # offline JD for dry-run/rehearse demos
-└── tests/test_apply.py        # 15 tests, no network/browser needed
+└── tests/                     # 15+ tests, no network/browser needed
 ```
 
 ## Usage
@@ -60,6 +63,46 @@ python -m apply --url https://boards.greenhouse.io/acme/jobs/123 --variant resum
 # Tests
 pytest apply/tests/
 ```
+
+## Platform registry (`portals.yaml` + `--add-portal`)
+
+Routing is **data-driven**, not hard-coded. `portals.yaml` lists every known
+platform; `apply/adapters/registry.py` matches a JD URL to the right adapter.
+
+```bash
+# List platforms that serve a region (great for overseas applicants):
+python -m apply --recommend-platforms AU
+#   - LinkedIn (linkedin) [ToS: manual]
+#   - Seek (seek)
+#   - Indeed Australia (indeed_au) …
+
+# Scaffold a new portal entry (no Python needed to extend):
+python -m apply --add-portal https://jobs.lever.co/acme/7
+#   (prints the generated YAML entry; add --write-portal to append it)
+```
+
+Adding a platform is a YAML edit (or `--add-portal --write-portal`), not a new
+Python class — keeping the PR bar low. Only `boss_zhipin` and `linkedin` get
+dedicated adapters; everything else uses `GenericAdapter`.
+
+## Skill-gap analysis (`--upskill`)
+
+Given a JD and (optionally) your resume, report the JD keywords your resume is
+**missing** — framed as skills to develop. Reuses the same keyword tokenizer as
+the ATS check, so the two views stay consistent. Advisory only.
+
+```bash
+python -m apply --upskill apply/samples/sample_jd.html
+#   Skill-gap analysis (--upskill)
+#     coverage: 0% of JD keywords already present
+#     [GAP] skills to develop: kubernetes, devops, graphql …
+
+python -m apply --upskill apply/samples/sample_jd.html \
+    --resume LaTeX_Resume_EN/sample-resume-en_US-zh_CN.tex
+#   coverage: 19% …  [GAP] skills to develop: kubernetes, devops …
+```
+
+
 
 ## ATS readability check (`--ats-check`)
 

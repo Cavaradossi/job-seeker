@@ -207,6 +207,23 @@ python -m apply --honesty-check LaTeX_Resume_EN/sample-resume-en_US-zh_CN.tex
 It flags vague superlatives, absolute claims, and scope-inflation phrasing
 (honesty boundary §6.1). Advisory only — confirm against checklist.md §E.
 
+### 4.6 Skill-gap analysis (the "what am I missing?" view)
+
+Beyond tailoring, help the candidate see where they fall short for a role. Run
+the skill-gap analysis on the JD (and optionally their current resume):
+
+```bash
+python -m apply --upskill <jd_url_or_file> [--resume LaTeX_Resume_EN/<variant>.tex]
+```
+
+It reports the JD keywords the resume does **not** contain, framed as skills to
+develop — the complement of the ATS keyword *coverage* check. Use it to:
+
+- Tell the candidate honestly which bullets to add (if the experience is real).
+- Flag gaps that would require fabrication — and advise against inventing them
+  (honesty boundary §6.1). The tool never suggests lying; it suggests either
+  acquiring the skill or not applying where the gap is fundamental.
+
 ## 5. Build & verify
 
 ```bash

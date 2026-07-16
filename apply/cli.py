@@ -25,9 +25,13 @@ from pathlib import Path
 
 from .adapters import pick_adapter
 from .adapters.base import JDText
+from .adapters.registry import (
+    resolve_adapter, recommend_platforms, add_portal, PORTALS_PATH,
+)
 from .mapping.jd_to_variant import recommend_variant
 from .mapping.variant_renderer import render_variant
 from .audit import log_event
+from .upskill import run_upskill
 from convert.ats_check import run_ats_check
 from .honesty_check import run_honesty_check
 
@@ -68,6 +72,30 @@ def print_jd(jd: JDText) -> None:
           f"{snippet[:300]}{'...' if len(snippet) > 300 else ''}")
 
 
+def _append_portal(entry: dict) -> None:
+    """Append a generated portal entry to portals.yaml (idempotent by id)."""
+    import yaml
+    path = PORTALS_PATH
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    platforms = data.get("platforms", []) or []
+    if any(p.get("id") == entry["id"] for p in platforms):
+        print(f"[apply] portal '{entry['id']}' already exists in {path.name} — skipped.")
+        return
+    platforms.append(entry)
+    data["platforms"] = platforms
+    header = (
+        "# portals.yaml — job-board / ATS registry (user-editable, no Python required)\n"
+        "# See apply/adapters/registry.py for the field schema.\n"
+        "# Fields: id, name, url_patterns, regions, tos_blocks_automation, adapter\n\n"
+    )
+    body = yaml.safe_dump(
+        {"platforms": platforms}, sort_keys=False, allow_unicode=True,
+        default_flow_style=False,
+    )
+    path.write_text(header + body, encoding="utf-8")
+    print(f"[apply] appended portal '{entry['id']}' to {path.name}")
+
+
 def _open_and_show(url: str, profile: dict, pdf) -> None:
     print("[apply] prefill data (copy manually into the form):")
     for k, v in profile.items():
@@ -103,11 +131,57 @@ def main(argv=None) -> int:
     ap.add_argument("--honesty-check", metavar="TEX",
                     help="run the heuristic honesty check on a resume .tex "
                          "(advisory; flags vague/absolute/scope-inflated claims).")
+    ap.add_argument("--add-portal", metavar="URL",
+                    help="scaffold a new portals.yaml entry for URL and print it "
+                         "(optionally --write-portal to append). Lowers the PR bar.")
+    ap.add_argument("--write-portal", action="store_true",
+                    help="with --add-portal: append the generated entry to portals.yaml")
+    ap.add_argument("--upskill", metavar="JD",
+                    help="skill-gap analysis: JD (URL or file) vs your resume. "
+                         "Optional --resume <tex> to scope the gap.")
+    ap.add_argument("--resume", help="resume .tex path for --upskill / coverage")
+    ap.add_argument("--recommend-platforms", metavar="REGION",
+                    help="list portals.yaml platforms serving REGION "
+                         "(e.g. CN, AU, SG, GB, global).")
     args = ap.parse_args(argv)
 
     # ---- standalone honesty check (does not need a JD or browser) ----
     if args.honesty_check:
         rep = run_honesty_check(args.honesty_check)
+        print(rep.format_text())
+        return 0
+
+    # ---- standalone: recommend platforms by region ----
+    if args.recommend_platforms:
+        hits = recommend_platforms(args.recommend_platforms)
+        print(f"[apply] platforms serving region '{args.recommend_platforms}':")
+        if not hits:
+            print("  (none configured — edit apply/portals.yaml)")
+        for p in hits:
+            flag = " [ToS: manual]" if p.get("tos_blocks_automation") else ""
+            print(f"  - {p['name']}  ({p['id']}){flag}")
+        return 0
+
+    # ---- standalone: scaffold a new portal entry ----
+    if args.add_portal:
+        entry = add_portal(args.add_portal)
+        print("[apply] generated portals.yaml entry:")
+        print("  - id: " + entry["id"])
+        print(f"    name: {entry['name']}")
+        print(f"    url_patterns: {entry['url_patterns']}")
+        print(f"    regions: {entry['regions']}")
+        print(f"    tos_blocks_automation: {entry['tos_blocks_automation']}")
+        print(f"    adapter: {entry['adapter']}")
+        if args.write_portal:
+            _append_portal(entry)
+        else:
+            print("[apply] (dry run — re-run with --write-portal to append to "
+                  f"{PORTALS_PATH.name})")
+        return 0
+
+    # ---- standalone: skill-gap analysis ----
+    if args.upskill:
+        rep = run_upskill(args.upskill, args.resume)
         print(rep.format_text())
         return 0
 

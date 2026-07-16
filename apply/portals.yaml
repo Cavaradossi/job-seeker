@@ -1,0 +1,100 @@
+# portals.yaml — job-board / ATS registry (user-editable, no Python required)
+#
+# This file is the SINGLE SOURCE OF TRUTH for which platforms job-seeker knows
+# about. `apply/adapters/registry.py` reads it to route a JD URL to the right
+# adapter. To add a portal, either edit this file by hand or run:
+#
+#     python -m apply --add-portal <url>
+#
+# Fields per entry:
+#   id             stable identifier (used in logs / tests)
+#   name           human-readable name
+#   url_patterns   substrings matched against the JD URL (case-insensitive)
+#   regions        ISO-ish region codes this portal primarily serves
+#   tos_blocks_automation  true => apply degrades to open-page + show-data
+#   adapter        Python adapter key in apply/adapters/registry.py
+#                   ("generic" = the built-in GenericAdapter)
+
+platforms:
+
+  # ── 中国大陆 ──────────────────────────────────────────
+  - id: boss_zhipin
+    name: Boss直聘
+    url_patterns: ["zhipin.com", "boss.zhipin"]
+    regions: [CN]
+    tos_blocks_automation: true
+    adapter: boss_zhipin
+
+  - id: liepin
+    name: 猎聘
+    url_patterns: ["liepin.com"]
+    regions: [CN]
+    tos_blocks_automation: false
+    adapter: generic
+
+  - id: job51
+    name: 前程无忧
+    url_patterns: ["51job.com", "51job"]
+    regions: [CN]
+    tos_blocks_automation: false
+    adapter: generic
+
+  # ── 全球 / ATS ───────────────────────────────────────
+  - id: linkedin
+    name: LinkedIn
+    url_patterns: ["linkedin.com/jobs", "linkedin.com"]
+    regions: [global]
+    tos_blocks_automation: true
+    adapter: linkedin
+
+  - id: greenhouse
+    name: Greenhouse ATS
+    url_patterns: ["boards.greenhouse.io", "greenhouse.io"]
+    regions: [global]
+    tos_blocks_automation: false
+    adapter: generic
+
+  - id: lever
+    name: Lever ATS
+    url_patterns: ["jobs.lever.co", "lever.co"]
+    regions: [global]
+    tos_blocks_automation: false
+    adapter: generic
+
+  - id: workday
+    name: Workday ATS
+    url_patterns: ["myworkdayjobs.com", "wd3.myworkday.com", "workday.com"]
+    regions: [global]
+    tos_blocks_automation: false
+    adapter: generic
+
+  # ── 澳洲 / 新西兰 ────────────────────────────────────
+  - id: seek
+    name: Seek
+    url_patterns: ["seek.com.au", "seek.co.nz"]
+    regions: [AU, NZ]
+    tos_blocks_automation: false
+    adapter: generic
+
+  - id: indeed_au
+    name: Indeed Australia
+    url_patterns: ["au.indeed.com", "indeed.com.au"]
+    regions: [AU]
+    tos_blocks_automation: false
+    adapter: generic
+
+  # ── 英国 ─────────────────────────────────────────────
+  - id: reed
+    name: Reed
+    url_patterns: ["reed.co.uk"]
+    regions: [GB]
+    tos_blocks_automation: false
+    adapter: generic
+
+  # ── 新加坡 ───────────────────────────────────────────
+  - id: mycareersfuture
+    name: MyCareersFuture
+    url_patterns: ["mycareersfuture.gov.sg"]
+    regions: [SG]
+    tos_blocks_automation: false
+    adapter: generic

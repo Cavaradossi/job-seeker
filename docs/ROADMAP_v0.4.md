@@ -113,6 +113,17 @@ Claude's best technical idea, and it slots cleanly into our adapter design.
 - Later: use `regions` for "recommend platforms for my target region" in
   `--setup` (AU → Seek, SG → MyCareersFuture).
 
+> **Implemented (v0.4-dev):** `apply/portals.yaml` seeded with Boss直聘 / 猎聘 /
+> 前程无忧 / LinkedIn / Greenhouse / Lever / Workday / Seek / Indeed AU / Reed /
+> MyCareersFuture. `apply/adapters/registry.py` provides `resolve_adapter(url)`,
+> `load_adapter(key)`, `recommend_platforms(region)`, `add_portal(url)`. The old
+> hard-coded `pick_adapter` now delegates to the registry (backward compatible).
+> New CLI commands: `python -m apply --add-portal <url> [--write-portal]`,
+> `--recommend-platforms <region>` (e.g. CN/AU/SG/GB/global), and `--upskill
+> <jd> [--resume <tex>]` (JD-vs-resume skill-gap analysis, reusing the ATS
+> keyword tokenizer). 10 new tests (registry + upskill); full suite 69 green.
+> SKILL §4.6 documents the upskill flow.
+
 ### P2 — Cover letter (the real gap)
 
 We have no cover-letter generation; the competitor does. Add:
