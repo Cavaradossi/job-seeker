@@ -10,6 +10,7 @@ import sys
 
 from .pipeline import Pipeline, route, _EDGES
 from .adapters.base import Adapter
+from .ats_check import run_ats_check
 
 
 def _print_fidelity_matrix() -> int:
@@ -54,6 +55,10 @@ def main(argv=None) -> int:
                     help="print supported conversion edges and exit")
     ap.add_argument("--fidelity-matrix", action="store_true",
                     help="print the 4x4 fidelity matrix (lossless/lossy/text-only) and exit")
+    ap.add_argument("--ats-check", nargs="?", const=True, default=False,
+                    metavar="PDF",
+                    help="run the ATS readability check on the output PDF "
+                         "(or on PDF if given directly). Advisory, non-blocking.")
     args = ap.parse_args(argv)
 
     if args.list_routes:
@@ -65,9 +70,15 @@ def main(argv=None) -> int:
     if args.fidelity_matrix:
         return _print_fidelity_matrix()
 
+    # ---- standalone ATS check on an existing PDF ----
+    if args.ats_check and isinstance(args.ats_check, str):
+        rep = run_ats_check(args.ats_check)
+        print(rep.format_text())
+        return 0 if not rep.errors else 0  # advisory: never block
+
     if not args.input or not args.output:
         ap.error("the following arguments are required: --input/-i, --output/-o "
-                 "(unless --list-routes)")
+                 "(unless --list-routes or --ats-check <pdf>)")
 
     try:
         adapters = route(args.input, args.output)
@@ -88,6 +99,9 @@ def main(argv=None) -> int:
 
     if ok:
         print(f"[convert] OK -> {args.output}")
+        if args.ats_check:
+            rep = run_ats_check(args.output)
+            print(rep.format_text())
         return 0
     print(f"[convert] FAILED -> {args.output}", file=sys.stderr)
     return 1

@@ -28,6 +28,8 @@ from .adapters.base import JDText
 from .mapping.jd_to_variant import recommend_variant
 from .mapping.variant_renderer import render_variant
 from .audit import log_event
+from convert.ats_check import run_ats_check
+from .honesty_check import run_honesty_check
 
 
 def load_profile(args) -> dict:
@@ -86,7 +88,7 @@ def main(argv=None) -> int:
         prog="python -m apply",
         description="job-seeker browser-assisted application (human-in-the-loop).",
     )
-    g = ap.add_mutually_exclusive_group(required=True)
+    g = ap.add_mutually_exclusive_group(required=False)
     g.add_argument("--url", help="JD URL to read")
     g.add_argument("--jd-file", help="local JD file (html/md/txt) — offline alternative to --url")
     ap.add_argument("--variant", help="resume variant name/path (default: auto-recommend)")
@@ -95,7 +97,22 @@ def main(argv=None) -> int:
     ap.add_argument("--rehearse", action="store_true",
                     help="run the confirm() gate without a browser (tests the pause)")
     ap.add_argument("--profile", help="profile JSON file (else env vars JOB_SEEKER_NAME/EMAIL/PHONE)")
+    ap.add_argument("--ats-check", action="store_true",
+                    help="run the ATS readability check on the rendered PDF "
+                         "(uses the JD for keyword coverage). Advisory, non-blocking.")
+    ap.add_argument("--honesty-check", metavar="TEX",
+                    help="run the heuristic honesty check on a resume .tex "
+                         "(advisory; flags vague/absolute/scope-inflated claims).")
     args = ap.parse_args(argv)
+
+    # ---- standalone honesty check (does not need a JD or browser) ----
+    if args.honesty_check:
+        rep = run_honesty_check(args.honesty_check)
+        print(rep.format_text())
+        return 0
+
+    if not (args.url or args.jd_file):
+        ap.error("one of --url / --jd-file is required (or use --honesty-check <tex>)")
 
     adapter = pick_adapter(args.url or "")
     jd = read_jd(adapter, args)
@@ -122,6 +139,11 @@ def main(argv=None) -> int:
               "Add your variants to LaTeX_Resume_CN/ or LaTeX_Resume_EN/.)")
     except RuntimeError as e:
         print(f"[apply] NOTE: {e}")
+
+    # ---- optional ATS readability check on the rendered PDF ----
+    if args.ats_check and pdf:
+        rep = run_ats_check(str(pdf), jd_text=jd.raw_text)
+        print(rep.format_text())
 
     # ---- dry run: stop here, audit, exit 0 ----
     if args.dry_run:

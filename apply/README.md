@@ -61,6 +61,44 @@ python -m apply --url https://boards.greenhouse.io/acme/jobs/123 --variant resum
 pytest apply/tests/
 ```
 
+## ATS readability check (`--ats-check`)
+
+After rendering the variant PDF, run an ATS readability check (text layer,
+tofu, contact info) and — because `apply` already read the JD — **JD keyword
+coverage** for free. Advisory, non-blocking. See `convert/README.md` for the
+full check list.
+
+```bash
+python -m apply --jd-file apply/samples/sample_jd.html --variant resume_job_en \
+    --dry-run --ats-check
+#   ATS readability check
+#     file : outputs/resume_job_en_applied.pdf
+#     pages: 2  |  text chars: 4391  |  score: 99/100
+#     [INFO  ] JD keyword coverage: 47%
+#     [INFO  ] Missing keywords: kubernetes, golang, …
+```
+
+## Honesty check (`--honesty-check <tex>`)
+
+A heuristic linter that flags resume wording prone to inflating claims —
+aligned with the honesty boundaries (checklist.md §E, master_prompt_extract.md
+§6.1). Advisory, never auto-edits. Pair it with the SKILL reviewer pass.
+
+```bash
+python -m apply --honesty-check LaTeX_Resume_EN/sample-resume-en_US-zh_CN.tex
+#   Honesty check (heuristic — advisory, not a verdict)
+#     L 12 [uncontextualized-number] 30%
+#          → Attach a metric verb (improved/reduced/grew/saved) and a baseline…
+#     L 40 [vague-superlative] expert
+#          → Replace puffery with a measurable fact; a human reviewer cannot verify…
+```
+
+Rules: vague superlatives (expert/guru/ninja/world-class…), absolute claims
+(never/always/zero bugs/100% uptime), scope-inflation phrasing (from scratch /
+single-handedly / autonomous agent / trading system / live trading), and bare
+numbers without a metric verb. Academic "Master" (degree/contest) is **not**
+flagged.
+
 ## How the human-in-the-loop gate works
 
 `apply/confirm.py::confirm()` is the single chokepoint:

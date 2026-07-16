@@ -127,6 +127,16 @@ enhancement.
   + a short "honesty audit" checklist the reviewer pass can run (flags
   unverifiable metrics / title inflation). This is our sharpest brand edge.
 
+> **Implemented (v0.4-dev):** the honesty rules are now a runnable, advisory
+> linter — `python -m apply --honesty-check <tex>` (`apply/honesty_check.py`).
+> It flags vague superlatives, absolute claims, scope-inflation phrasing
+> (honesty boundary §6.1), and bare numbers without a metric verb. The SKILL
+> reviewer pass (§4.5) references it. Also shipped an **ATS readability check**
+> (`convert/ats_check.py`, wired into `convert --ats-check` and
+> `apply --ats-check`) — text-layer / tofu / contact-info / JD-keyword-coverage —
+> so "the resume actually parses" is verifiable, not assumed. Both are
+> non-blocking and use only existing dependencies (PyMuPDF).
+
 ### P5 — Community loop
 
 - Enable GitHub Discussions; triage Issues weekly; showcase notable forks.

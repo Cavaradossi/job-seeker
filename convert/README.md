@@ -43,8 +43,37 @@ python -m convert --input notes.md       --output notes.pdf
 # List supported edges
 python -m convert --list-routes
 
+# ATS readability check (advisory) — on the output PDF, or any PDF directly
+python -m convert --input resume.tex --output resume.pdf --ats-check
+python -m convert --ats-check resume.pdf
+
 # Tests
 pytest convert/tests/
+```
+
+## ATS readability check (`--ats-check`)
+
+Uses **PyMuPDF** (already a dependency) to inspect the PDF *text layer* the way
+an Applicant Tracking System would — no new installs. It is **advisory and
+non-blocking**: it prints a report and a 0–100 score; it never fails a build.
+
+What it checks:
+
+| Check | Why it matters |
+|-------|----------------|
+| Text layer present | ATS parsers only read the text layer, not a scanned image. |
+| Images-as-text | Flags pages where glyphs are rasterized (the #1 ATS killer). |
+| Tofu / missing glyphs | U+FFFD + non-embedded non-base-14 fonts (tofu risk, esp. CJK). |
+| Contact info | Email + phone presence so the parser can route your app. |
+| JD keyword coverage | Optional: pass a JD and see which keywords your resume already hits. |
+
+```bash
+# standalone on any PDF
+python -m convert --ats-check outputs/sample.pdf
+#   ATS readability check
+#     file : outputs/sample.pdf
+#     pages: 2  |  text chars: 4391  |  score: 100/100
+#     [OK    ] Text layer looks ATS-friendly.
 ```
 
 ## Any-to-any conversion matrix
