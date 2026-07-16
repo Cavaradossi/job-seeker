@@ -9,10 +9,12 @@
 > **How job-seeker is different.** Most AI job-search tools bundle a paid agent
 > subscription, scrape job boards, and auto-pilot submissions. job-seeker goes the
 > other way: **offline**, **no subscription**, **scrapes nothing**, and **never
-> auto-submits** — and it is built **CJK-first**: Chinese↔English i18n is a
-> first-class feature, not an afterthought. Bring a resume in **any format and any
-> language**; get a clean **bilingual** LaTeX / PDF / DOCX with pixel-perfect CJK
-> typography, and stay in control. Works with whatever AI editor you already use
+> auto-submits** — and it is built **script-agnostic**: **every writing system is a
+> first-class citizen** — Han (CJK), Latin, Cyrillic, Arabic, Hebrew, Devanagari,
+> Greek, and more. Bring a resume in **any format and any language**; get a clean
+> LaTeX / PDF / DOCX with pixel-perfect **CJK typography** (the hardest case we
+> solve best — if xelatex + CJK fonts work, the rest is font + bidi work, not a
+> rewrite), and stay in control. Works with whatever AI editor you already use
 > (Cursor / Codex / WorkBuddy).
 
 ---

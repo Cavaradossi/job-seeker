@@ -20,7 +20,7 @@ so bullets never overstate scope, metrics, or titles.
 | Editor | Path | Notes |
 |--------|------|-------|
 | **Codex** | `.codex/skills/job-seeker/` + `AGENTS.md` | Committed project Skill + repo-level entry |
-| **Cursor** | `.cursor/skills/job-seeker/` | Committed — EN + `SKILL.zh-CN.md` |
+| **Cursor** | `.cursor/skills/job-seeker/` | Committed — docs ship per language (`SKILL.md`, `SKILL.zh-CN.md`, add your own) |
 | WorkBuddy | `.workbuddy/skills/job-seeker/` | Add `agent_created: true` to frontmatter |
 | Portable copy | `docs/skill/job-seeker/` | Mirror for export / generic editors |
 
@@ -50,8 +50,9 @@ Do **not** trigger for generic LaTeX help unrelated to this repo's resume workfl
 ./                              # job-seeker / 申职器
 ├── resume_template/            # Public sample template + bundled CJK fonts (always present)
 │   └── sample-resume-en_US-zh_CN.tex
-├── LaTeX_Resume_CN/            # YOUR private CN variants (create locally; gitignored)
-├── LaTeX_Resume_EN/            # YOUR private EN variants (create locally; gitignored)
+├── LaTeX_Resume_CN/            # YOUR private variants, script-tagged (CN = Chinese; gitignored)
+├── LaTeX_Resume_EN/            # YOUR private variants, script-tagged (EN = English; gitignored)
+├── LaTeX_Resume_<SCRIPT>/      # add your own script dirs (AR/RU/JA/…); picked up automatically
 ├── convert/                    # python -m convert — MD/DOCX/PDF/LaTeX any-to-any
 ├── apply/                      # python -m apply — JD→variant, prefill, confirm gate
 ├── docs/
@@ -144,6 +145,14 @@ Details: `apply/README.md`.
 | EN backend/ops | `LaTeX_Resume_EN/resume_backend_ops.tex` | `resume_backend_ops.pdf` | EN ops |
 | EN AI/RAG | `LaTeX_Resume_EN/resume_ai_eval.tex` | `resume_ai_eval.pdf` | EN AI eval |
 | Web3 | `LaTeX_Resume_EN/resume_web3.tex` | `resume_web3.pdf` | Anonymous crypto |
+
+> **Script-tagged variants.** The `LaTeX_Resume_*` directories are keyed by
+> **writing system / script**, not by EN-vs-CN. `CN`/`EN` are just two of many
+> possible suffixes — add your own (`LaTeX_Resume_AR/`, `LaTeX_Resume_RU/`,
+> `LaTeX_Resume_JA/`, …) and `build_resumes.sh` + the variant resolver will pick
+> them up automatically. job-seeker treats **every script as first-class**; the
+> public repo only ships sample CN/EN templates because those are the maintainer's
+> languages. See §6 for the i18n / any-script design.
 
 Full openers/DM templates: `references/variant_playbook.md`.
 
@@ -245,7 +254,28 @@ or compile `resume_template/` directly with `xelatex`.
 
 Missing `xelatex` → exit 2, see `docs/BUILD_MAC.md`.
 
-## 6. References
+## 6. i18n / any-script design
+
+job-seeker is **script-agnostic**: every writing system is a first-class citizen —
+Han (CJK), Latin, Cyrillic, Arabic, Hebrew, Devanagari, Greek, and more. CJK is the
+**proving ground** (bundled CJK fonts + xelatex is the hard part); once that works,
+Latin/Cyrillic/Arabic/Hebrew are font + bidi work, not a rewrite.
+
+- **Text path is script-agnostic.** The `convert/` pipeline preserves any Unicode
+  script; the variant resolver and the skill-gap (`--upskill`) tokenizer are
+  script-aware (not ASCII-only), so non-Latin JDs are handled correctly.
+- **Variant dirs are script-tagged.** `LaTeX_Resume_<SCRIPT>/` — add your own
+  (`AR`/`RU`/`JA`/…); `build_resumes.sh` and the resolver pick them up automatically.
+- **Rendering (v0.4):** bundled fonts + `ucharclasses` give **glyph coverage** (no
+  tofu) for Cyrillic/Greek/Arabic/Hebrew/Devanagari in LTR. **RTL ordering** for
+  Arabic/Hebrew is a tracked **v0.5** experimental item (bidi conflicts with
+  `resume.cls`'s section-rule packages).
+- **Portals are language-aware.** `apply/portals.yaml` entries may carry
+  `languages:` / `scripts:` so `--recommend-platforms` can match by language too.
+
+This is the real moat vs English-first tools: we assume *any language*, not just EN.
+
+## 7. References
 
 | File | When to load |
 |------|--------------|

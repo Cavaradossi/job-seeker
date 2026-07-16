@@ -108,6 +108,12 @@ python -m apply --jd-file apply\samples\sample_jd.html --dry-run
 | 中文 AI | `resume-zh_ai_eval.tex` | RAG / 大模型 |
 | 英文通用 | `LaTeX_Resume_EN/resume_job_en.tex` | 英文岗（1 页） |
 
+> **按文字系统打标签的变体。** `LaTeX_Resume_*` 目录是以**文字系统 / 脚本**为键，
+> 而非「英文 vs 中文」。`CN`/`EN` 只是众多后缀里的两个——你可以自建
+> （`LaTeX_Resume_AR/`、`LaTeX_Resume_RU/`、`LaTeX_Resume_JA/`……），
+> `build_resumes.sh` 和变体解析器会自动识别。job-seeker 把**每种脚本都当一等公民**；
+> 公开仓库只随附维护者所用的中文 / 英文样例模板。任意语种的设计见 §6。
+
 详见 `references/variant_playbook.md`。
 
 ## 4. 诚实边界
