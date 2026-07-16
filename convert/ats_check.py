@@ -9,7 +9,9 @@ PDF *text layer* the way an Applicant Tracking System would:
      images with little/no embedded text (the #1 ATS killer).
   3. tofu / missing glyphs — detects the Unicode replacement char (U+FFFD)
      and non-embedded non-base14 fonts (high risk of boxes on a recruiter's
-     machine that lacks your system font; especially fatal for CJK text).
+     machine that lacks your system font; especially fatal for non-Latin text:
+     CJK, Cyrillic, Greek, Arabic, Hebrew, Devanagari, …). Script detection is
+     writing-system-agnostic — every script is a first-class citizen.
   4. contact info         — email + phone presence (so the parser can route
      your application).
   5. JD keyword coverage  — optional: given the job description text, report
@@ -50,10 +52,20 @@ except ImportError as exc:  # pragma: no cover - dependency guard
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 # Lenient international phone: optional +, 7-15 digits amid separators.
 PHONE_RE = re.compile(r"(?:\+?\d[^\d\n]{0,2})?(?:\(?\d{2,4}\)?[\s.\-]?){2,5}\d")
-# CJK ranges (Unified Ideographs + common punctuation) for embedded-font risk.
-_CJK_RE = re.compile(
-    r"[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]"
-)
+# Script-coverage map: Unicode BMP/SMP ranges per writing system, used to detect
+# which scripts appear in a resume's text layer so tofu / non-embedded-font
+# warnings can be script-specific (not just "CJK"). Ranges are conservative
+# (common blocks only) — enough to flag risk, not a full Unicode script table.
+# Every writing system is a first-class citizen here.
+SCRIPT_RANGES = {
+    "latin":     r"[\u0041-\u005a\u0061-\u007a\u00c0-\u024f\u1e00-\u1eff]",
+    "cjk":       r"[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef\U00020000-\U0002a6df]",
+    "cyrillic":  r"[\u0400-\u04ff\u0500-\u052f\u2de0-\u2dff\ua640-\ua69f]",
+    "greek":     r"[\u0370-\u03ff\u1f00-\u1fff]",
+    "arabic":    r"[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufeff]",
+    "hebrew":    r"[\u0590-\u05ff\ufb1d-\ufb4f]",
+    "devanagari": r"[\u0900-\u097f\ua8e0-\ua8ff]",
+}
 # A glyph rendered as a box is often the replacement char or a control box.
 _TOFU_CHARS = {"\ufffd", "\u25af", "\u25a1", "\u274f", "\u2751"}
 
@@ -124,6 +136,7 @@ class AtsReport:
     glyph_cells: int = 0         # glyph cells detected across all pages
     text_chars: int = 0          # chars actually mapped in the text layer
     replacement_chars: int = 0   # U+FFFD etc. in the text layer
+    scripts_present: set = field(default_factory=set)  # writing systems found
     nonembedded_fonts: bool = False
     images_as_text: bool = False
     has_email: bool = False
@@ -145,9 +158,14 @@ class AtsReport:
             lines.append(f"  [ERROR ] {self.replacement_chars} Unicode replacement "
                          f"char(s) (U+FFFD) in the text layer.")
         if self.nonembedded_fonts:
+            at_risk = sorted(s for s in self.scripts_present if s != "latin")
+            scripts = ", ".join(at_risk) if at_risk else "non-Latin"
             lines.append("  [WARN  ] Uses non-embedded fonts (not base-14) — high "
-                         "risk of tofu/boxes on machines lacking your system font "
-                         "(especially for CJK).")
+                         f"risk of tofu/boxes on machines lacking your system font "
+                         f"(scripts at risk: {scripts}).")
+        non_latin = sorted(s for s in self.scripts_present if s != "latin")
+        if non_latin:
+            lines.append(f"  [INFO  ] Writing systems detected: {', '.join(non_latin)}")
         if self.images_as_text:
             lines.append("  [WARN  ] Text appears rasterized (images-as-text) on "
                          "some pages — ATS cannot read it.")
@@ -176,8 +194,26 @@ class AtsReport:
 # --------------------------------------------------------------------------- #
 # Pure helpers (unit-testable)
 # --------------------------------------------------------------------------- #
+def _detect_scripts(text: str) -> set:
+    """Return the set of writing-system tags present in `text`."""
+    if not text:
+        return set()
+    found = set()
+    for tag, rx in SCRIPT_RANGES.items():
+        if re.search(rx, text):
+            found.add(tag)
+    return found
+
+
+def _has_script(text: str, tag: str) -> bool:
+    """True if `text` contains any codepoint from the given writing system."""
+    rx = SCRIPT_RANGES.get(tag)
+    return bool(rx and re.search(rx, text))
+
+
 def _cjk_runs(text: str) -> bool:
-    return bool(_CJK_RE.search(text))
+    """Deprecated alias for ``_has_script(text, "cjk")`` — kept for tests."""
+    return _has_script(text, "cjk")
 
 
 def _count_replacement(text: str) -> int:
@@ -260,6 +296,7 @@ def _check_tofu(doc: "fitz.Document", report: AtsReport) -> None:
         page = doc[pno]
         txt = page.get_text("text")
         report.replacement_chars += _count_replacement(txt)
+        report.scripts_present |= _detect_scripts(txt)
         if _font_has_tofu_risk(page.get_fonts(full=True)):
             report.nonembedded_fonts = True
 
@@ -333,7 +370,10 @@ def _score(report: AtsReport) -> None:
         )
         score -= 15
     if report.nonembedded_fonts:
-        report.warnings.append("non-embedded fonts (tofu risk)")
+        at_risk = sorted(s for s in report.scripts_present if s != "latin")
+        detail = (f" (scripts at risk: {', '.join(at_risk)})"
+                  if at_risk else " (non-Latin tofu risk)")
+        report.warnings.append("non-embedded fonts (tofu risk)" + detail)
         score -= 12
 
     # Contact info

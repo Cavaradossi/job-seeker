@@ -8,7 +8,7 @@
 #   ./build_resumes.sh
 #
 # Requires: xelatex (MacTeX or TeX Live) + the LaTeX packages listed in docs/BUILD_MAC.md.
-# Fonts are bundled in LaTeX_Resume_CN/fonts/ and LaTeX_Resume_EN/fonts/ — no system font install needed.
+# Fonts are bundled in each LaTeX_Resume_<SCRIPT>/fonts/ — no system font install needed.
 
 set -euo pipefail
 
@@ -134,25 +134,41 @@ main() {
   for f in "${CN_FILES[@]}"; do
     compile_one "$CN_DIR" "$f"
   done
-
   echo "=== Copying CN PDFs to outputs/ ==="
   for pair in "${CN_MAP[@]}"; do
     copy_pdf "$CN_DIR" "$pair"
   done
+  cleanup_dir "$CN_DIR"
 
   echo "=== Building English resumes ($EN_DIR) ==="
   for f in "${EN_FILES[@]}"; do
     compile_one "$EN_DIR" "$f"
   done
-
   echo "=== Copying EN PDFs to outputs/ ==="
   for pair in "${EN_MAP[@]}"; do
     copy_pdf "$EN_DIR" "$pair"
   done
-
-  echo "=== Cleaning up build artifacts ==="
-  cleanup_dir "$CN_DIR"
   cleanup_dir "$EN_DIR"
+
+  # Auto-discover any OTHER LaTeX_Resume_<SCRIPT> dirs (RU, AR, HE, …). The
+  # CN/EN pair above is the curated bilingual manifest; every other script
+  # variant is built generically (all .tex -> outputs/<texbase>.pdf) with no
+  # code edits — every writing system is a first-class citizen.
+  echo "=== Building other script variants (LaTeX_Resume_*) ==="
+  shopt -s nullglob
+  for d in "$ROOT"/LaTeX_Resume_*; do
+    name="$(basename "$d")"
+    [[ "$name" == "LaTeX_Resume_CN" || "$name" == "LaTeX_Resume_EN" ]] && continue
+    [[ -d "$d" ]] || continue
+    echo "  -> $name"
+    for tex in "$d"/*.tex; do
+      base="$(basename "${tex%.tex}")"
+      compile_one "$d" "$base"
+      copy_pdf "$d" "$base.pdf:$base.pdf"
+    done
+    cleanup_dir "$d"
+  done
+  shopt -u nullglob
 
   echo ""
   echo "Done. PDFs in outputs/"

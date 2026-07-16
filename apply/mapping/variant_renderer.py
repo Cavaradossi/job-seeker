@@ -1,8 +1,10 @@
 """Render a resume variant: locate the .tex and compile to PDF (Phase 2 reuse).
 
-Search order for the .tex: LaTeX_Resume_CN, LaTeX_Resume_EN, resume_template.
-In the public template repo only resume_template/sample-resume-en_US-zh_CN.tex exists;
-add your own variants to LaTeX_Resume_*/ in your private fork.
+Search order for the .tex: every LaTeX_Resume_<SCRIPT> dir (script-tagged, e.g.
+CN, EN, RU, AR, HE, …), then resume_template as the final fallback. In the
+public template repo only resume_template/sample-resume-en_US-zh_CN.tex exists;
+add your own variants to LaTeX_Resume_*/ in your private fork — no code edits
+needed, every writing system is discovered automatically.
 """
 from __future__ import annotations
 
@@ -11,11 +13,25 @@ from pathlib import Path
 from convert.adapters.latex_to_pdf import LatexToPdf
 
 ROOT = Path(__file__).resolve().parents[2]
-VARIANT_DIRS = [
-    ROOT / "LaTeX_Resume_CN",
-    ROOT / "LaTeX_Resume_EN",
-    ROOT / "resume_template",
-]
+
+
+def _discover_variant_dirs() -> list:
+    """All LaTeX_Resume_<SCRIPT> dirs (script-tagged, alphabetically), with
+    resume_template appended as the final fallback.
+
+    This makes any writing system's private variant buildable without touching
+    code: drop a LaTeX_Resume_RU/ (or _AR, _HE, …) next to resume_template/ and
+    it is picked up automatically.
+    """
+    dirs = sorted(
+        (p for p in ROOT.glob("LaTeX_Resume_*") if p.is_dir()),
+        key=lambda p: p.name,
+    )
+    dirs.append(ROOT / "resume_template")
+    return dirs
+
+
+VARIANT_DIRS = _discover_variant_dirs()
 OUT = ROOT / "outputs"
 
 

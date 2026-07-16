@@ -13,6 +13,9 @@ from convert.ats_check import (
     _count_replacement,
     _is_base14,
     _font_has_tofu_risk,
+    _detect_scripts,
+    _has_script,
+    _score,
 )
 
 
@@ -100,6 +103,40 @@ def test_jd_coverage_in_report(tmp_path):
 def test_cjk_runs_helper():
     assert _cjk_runs("hello 世界") is True
     assert _cjk_runs("plain ascii only") is False
+
+
+def test_detect_scripts_covers_all_writing_systems():
+    # Every writing system is a first-class citizen — not just CJK.
+    assert _detect_scripts("Ведущий инженер") == {"cyrillic"}
+    assert _detect_scripts("مطور برمجيات") == {"arabic"}
+    assert _detect_scripts("מפתח תוכנה") == {"hebrew"}
+    assert _detect_scripts("सॉफ्टवेयर डेवलपर") == {"devanagari"}
+    assert _detect_scripts("προγραμματιστής") == {"greek"}
+    assert _detect_scripts("软件工程师") == {"cjk"}
+    # Mixed Latin + non-Latin returns both tags.
+    assert _detect_scripts("Python разработчик") == {"latin", "cyrillic"}
+    # Plain ASCII is detected as latin, not "unknown"/empty.
+    assert _detect_scripts("plain ascii only") == {"latin"}
+
+
+def test_has_script_helper():
+    assert _has_script("软件工程师", "cjk") is True
+    assert _has_script("software engineer", "cjk") is False
+    assert _has_script("مطور", "arabic") is True
+
+
+def test_nonembedded_warning_names_scripts():
+    rep = AtsReport(pdf="x", nonembedded_fonts=True,
+                    scripts_present={"cyrillic", "greek"})
+    _score(rep)
+    assert any("cyrillic" in w and "greek" in w for w in rep.warnings)
+
+
+def test_format_text_script_specific():
+    rep = AtsReport(pdf="x", nonembedded_fonts=True,
+                    scripts_present={"arabic", "hebrew"})
+    out = rep.format_text()
+    assert "arabic" in out and "hebrew" in out
 
 
 def test_report_format_text(tmp_path):

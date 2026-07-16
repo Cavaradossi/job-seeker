@@ -1,8 +1,9 @@
 """python -m job_seeker — top-level entry point.
 
 Subcommands:
-  init   Scaffold LaTeX_Resume_CN/ + LaTeX_Resume_EN/ from resume_template,
-         create docs/experience_bank.md, and smoke-compile the sample.
+  init   Scaffold LaTeX_Resume_<SCRIPT>/ (script-tagged variants) from
+         resume_template, create docs/experience_bank.md, and smoke-compile
+         the sample.
 
 Future (see docs/ROADMAP_v0.4.md): tailor, ats-check, templates.
 """
@@ -34,6 +35,23 @@ def _scaffold_one(target: Path, source: Path) -> bool:
     return True
 
 
+def _baseline_variant_dirs() -> list:
+    """Private resume dirs to scaffold on `init`.
+
+    Prefer any existing LaTeX_Resume_* dirs; otherwise scaffold the CN/EN
+    baseline bilingual pair. This way adding LaTeX_Resume_RU/ (or _AR, _HE, …)
+    to a private fork is picked up automatically — every writing system is a
+    first-class citizen, not just CN/EN.
+    """
+    existing = sorted(
+        (p for p in ROOT.glob("LaTeX_Resume_*") if p.is_dir()),
+        key=lambda p: p.name,
+    )
+    if existing:
+        return existing
+    return [ROOT / "LaTeX_Resume_CN", ROOT / "LaTeX_Resume_EN"]
+
+
 def _cmd_init(args) -> int:
     tmpl = ROOT / "resume_template"
     if not tmpl.exists():
@@ -41,8 +59,8 @@ def _cmd_init(args) -> int:
         return 1
 
     print("[init] scaffolding private resume directories (gitignored)...")
-    for name in ("LaTeX_Resume_CN", "LaTeX_Resume_EN"):
-        d = ROOT / name
+    for d in _baseline_variant_dirs():
+        name = d.name
         if _scaffold_one(d, tmpl):
             print(f"[init]   copied resume_template/* -> {name}/  (personalize the .tex, then `make build`)")
         else:
@@ -72,7 +90,7 @@ def _cmd_init(args) -> int:
 
     print()
     print("Next steps:")
-    print("  1. Edit LaTeX_Resume_CN/*.tex (or LaTeX_Resume_EN/) with your details.")
+    print("  1. Edit LaTeX_Resume_<SCRIPT>/*.tex (e.g. LaTeX_Resume_CN/) with your details.")
     print("  2. make build                    # compile all variants")
     print("  3. make fidelity                 # see the format-conversion matrix")
     print("  4. make apply-dryrun URL=<JD>    # JD -> variant recommendation")

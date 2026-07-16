@@ -119,6 +119,29 @@ foreach ($pair in $enMap.GetEnumerator()) {
   Write-Host "      -> outputs/$($pair.Value)"
 }
 
+# Auto-discover any OTHER LaTeX_Resume_<SCRIPT> dirs (RU, AR, HE, …). The
+# CN/EN pair above is the curated bilingual manifest; every other script
+# variant is built generically (all .tex -> outputs/<texbase>.pdf) with no
+# code edits — every writing system is a first-class citizen.
+Write-Host '=== Building other script variants (LaTeX_Resume_*) ==='
+foreach ($d in (Get-ChildItem -Path $root -Directory -Filter 'LaTeX_Resume_*' |
+        Where-Object { $_.Name -notin @('LaTeX_Resume_CN', 'LaTeX_Resume_EN') })) {
+    Write-Host "  -> $($d.Name)"
+    foreach ($tex in (Get-ChildItem -Path $d.FullName -Filter '*.tex' -File)) {
+        $base = $tex.BaseName
+        Write-Host "xelatex $base.tex"
+        & $script:xelatex -interaction=nonstopmode "$base.tex" | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "xelatex failed: $base (see $($d.FullName)\$base.log)" }
+        $pages = Get-PageCountFromLog (Join-Path $d.FullName "$base.log")
+        $script:pageReport += "$base`: $pages page(s)"
+        Copy-Item (Join-Path $d.FullName "$base.pdf") (Join-Path $out "$base.pdf") -Force
+        Write-Host "      -> outputs/$base.pdf"
+    }
+    foreach ($ext in @('aux', 'log', 'out', 'pdf')) {
+        Get-ChildItem $d.FullName -Filter "*.$ext" -File -ErrorAction SilentlyContinue | Remove-Item -Force
+    }
+}
+
 Write-Host '=== Cleaning up build artifacts ==='
 foreach ($d in @($cn, $en)) {
   if (Test-Path $d) {

@@ -2,7 +2,7 @@
 
 First-match-wins over an ordered keyword list. Returns a variant NAME (the
 .tex stem, matching the SKILL §3 variant table). The renderer then tries to
-locate the .tex in LaTeX_Resume_CN / LaTeX_Resume_EN / resume_template.
+locate the .tex in any LaTeX_Resume_<SCRIPT>/ dir (script-tagged) + resume_template.
 
 In the public template repo only the upstream sample (sample-resume-en_US-zh_CN)
 exists; users add their own variants to LaTeX_Resume_*/. The recommender

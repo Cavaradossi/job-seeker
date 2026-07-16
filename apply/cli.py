@@ -226,7 +226,8 @@ def main(argv=None) -> int:
     except FileNotFoundError as e:
         print(f"[apply] NOTE: {e}")
         print("[apply] (Public template repo ships only the sample variant. "
-              "Add your variants to LaTeX_Resume_CN/ or LaTeX_Resume_EN/.)")
+              "Add your variants to a LaTeX_Resume_<SCRIPT>/ dir, e.g. "
+              "LaTeX_Resume_CN/ or LaTeX_Resume_RU/.)")
     except RuntimeError as e:
         print(f"[apply] NOTE: {e}")
 

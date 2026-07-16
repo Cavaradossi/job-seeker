@@ -19,6 +19,15 @@ class GenericAdapter(SiteAdapter):
     name = "generic"
     tos_blocks_automation = False
 
+    # Default Accept-Language header. We do NOT assume English-only: advertise a
+    # broad set of language/region tags so localized job boards (CN/ZH, TW/ZH,
+    # JP/JA, KR/KO, RU, AR, HE, FR, DE) return HTML in the candidate's language
+    # instead of a forced-English page or a 406. Override per-adapter when a
+    # board needs a specific tag. Every writing system is a first-class citizen.
+    DEFAULT_ACCEPT_LANGUAGE = (
+        "en, zh-CN, zh-TW, ja, ko, ru, ar, he, fr, de;q=0.8"
+    )
+
     # ------------------------------------------------------------------ read_jd
     def read_jd(self, url: str) -> JDText:
         text, title, company, location = self._fetch_and_parse(url)
@@ -35,7 +44,7 @@ class GenericAdapter(SiteAdapter):
         headers = {
             "User-Agent": ("Mozilla/5.0 (job-seeker apply/0.1; "
                            "+https://github.com/your-org/job-seeker)"),
-            "Accept-Language": "en,zh-CN;q=0.9",
+            "Accept-Language": self.DEFAULT_ACCEPT_LANGUAGE,
         }
         try:
             r = requests.get(url, headers=headers, timeout=20)
@@ -81,6 +90,12 @@ class GenericAdapter(SiteAdapter):
         return self._prefill(page, profile)
 
     def _prefill(self, page, profile: dict) -> bool:
+        # `name` (the full name) is the canonical identifier and is attempted
+        # first. `first_name`/`last_name` are OPTIONAL secondary fills, used only
+        # when a form structurally requires separate given/family fields. We do
+        # NOT enforce Latin-style name splitting — many writing systems (CJK,
+        # Arabic, Hebrew, Cyrillic, …) have no clean given/family split, so the
+        # single full `name` is the source of truth and first/last are derived.
         fields = [
             ("email", profile.get("email", "")),
             ("phone", profile.get("phone", "")),

@@ -173,12 +173,12 @@ site; otherwise the tool honestly degrades.
 stem, matching the SKILL §3 table): `resume_backend_ops`, `resume_ai_eval`,
 `resume_web3`, `resume_job_en` (default EN), `resume-zh_job` (default CN).
 
-`variant_renderer.find_variant_tex()` searches `LaTeX_Resume_CN/`,
-`LaTeX_Resume_EN/`, then `resume_template/`. The public template repo ships
-only the upstream sample (`resume_template/sample-resume-en_US-zh_CN.tex`); add your
-own variants to `LaTeX_Resume_*/` in your private fork. If a recommended
-variant is missing, the CLI prints a clear note and continues (dry-run still
-succeeds).
+`variant_renderer.find_variant_tex()` searches every `LaTeX_Resume_<SCRIPT>/`
+dir (script-tagged, discovered automatically — CN, EN, RU, AR, HE, …), then
+`resume_template/`. The public template repo ships only the upstream sample
+(`resume_template/sample-resume-en_US-zh_CN.tex`); add your own variants to
+`LaTeX_Resume_*/` in your private fork. If a recommended variant is missing,
+the CLI prints a clear note and continues (dry-run still succeeds).
 
 ## Tracker schema
 
