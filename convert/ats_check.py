@@ -31,6 +31,7 @@ Example
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -74,6 +75,41 @@ _STOPWORDS = {
     "new", "one", "two", "three", "must", "able", "other", "these", "those",
     "were", "been", "being", "each", "does", "doing", "how", "why", "should",
 }
+
+# Script-aware tokenizer: any run of Unicode letters/marks, not just ASCII. This
+# makes keyword coverage / skill-gap analysis work for Cyrillic, Arabic, Hebrew,
+# Devanagari, Greek, CJK, etc. — the old ASCII-only regex returned 0 tokens for
+# non-Latin JDs, faking "100% coverage". Dependency-free (unicodedata, no `regex`).
+def script_aware_tokens(text: str) -> dict:
+    """Tokenize `text` into a {token: count} map across any writing system.
+
+    A token is a maximal run of >= 3 Unicode letters or combining marks. English
+    stopwords are filtered; non-Latin scripts have no stopword filtering (count,
+    not lexicon, drives coverage). Works for Latin, Cyrillic, CJK, Arabic,
+    Hebrew, Devanagari, Greek, and more.
+    """
+    out: dict = {}
+    if not text:
+        return out
+    text = unicodedata.normalize("NFC", (text or "").lower())
+    run: list = []
+
+    def _flush() -> None:
+        if run and len(run) >= 3:
+            tok = "".join(run)
+            if tok not in _STOPWORDS:
+                out[tok] = out.get(tok, 0) + 1
+        run.clear()
+
+    for ch in text:
+        cat = unicodedata.category(ch)
+        if cat[0] == "L" or cat in ("Mn", "Mc"):   # Letter or combining mark
+            run.append(ch)
+        else:
+            _flush()
+    _flush()
+    return out
+
 
 
 # --------------------------------------------------------------------------- #
@@ -179,18 +215,12 @@ def _page_glyph_cells(raw: dict) -> int:
 
 
 def _keyword_coverage(resume_text: str, jd_text: str) -> tuple[float, list]:
-    """Return (coverage 0..1, missing_keywords_sorted_by_frequency)."""
-    def tokens(s: str) -> dict:
-        out = {}
-        for m in re.finditer(r"[A-Za-z][A-Za-z\-]{2,}", s.lower()):
-            tok = m.group(0)
-            if tok in _STOPWORDS or len(tok) < 3:
-                continue
-            out[tok] = out.get(tok, 0) + 1
-        return out
+    """Return (coverage 0..1, missing_keywords_sorted_by_frequency).
 
-    rt = tokens(resume_text)
-    jt = tokens(jd_text)
+    Uses `script_aware_tokens` so non-Latin JDs/resumes are compared correctly.
+    """
+    rt = script_aware_tokens(resume_text)
+    jt = script_aware_tokens(jd_text)
     if not jt:
         return 1.0, []
     present = {k for k in jt if k in rt}

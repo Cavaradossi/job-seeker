@@ -12,11 +12,10 @@ Advisory only — never edits the resume.
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from typing import Optional
 
-from convert.ats_check import _keyword_coverage, _STOPWORDS
+from convert.ats_check import _keyword_coverage, _STOPWORDS, script_aware_tokens
 
 
 @dataclass
@@ -66,36 +65,20 @@ def analyze(jd_text: str, resume_text: Optional[str] = None,
     if not resume_text:
         cov, missing = _keyword_coverage("", jd_text)
         # _keyword_coverage returns (1.0, []) when resume is empty; recompute gap
-        def tokens(s):
-            out = {}
-            for m in re.finditer(r"[A-Za-z][A-Za-z\-]{2,}", s.lower()):
-                tok = m.group(0)
-                if tok in _STOPWORDS or len(tok) < 3:
-                    continue
-                out[tok] = out.get(tok, 0) + 1
-            return out
-        jt = tokens(jd_text)
+        # with the script-aware tokenizer so non-Latin JDs get a real gap list.
+        jt = script_aware_tokens(jd_text)
         missing = sorted(jt, key=lambda k: jt[k], reverse=True)
         return UpskillReport(
             jd_source=jd_source, resume_source=resume_source,
             coverage=0.0, present=[], gap=missing,
         )
     cov, missing = _keyword_coverage(resume_text, jd_text)
-    present = sorted({t for t in _tokens(jd_text) if t in _tokens(resume_text)})
+    present = sorted({t for t in script_aware_tokens(jd_text)
+                      if t in script_aware_tokens(resume_text)})
     return UpskillReport(
         jd_source=jd_source, resume_source=resume_source,
         coverage=cov, present=present, gap=missing,
     )
-
-
-def _tokens(s: str) -> set:
-    out = set()
-    for m in re.finditer(r"[A-Za-z][A-Za-z\-]{2,}", s.lower()):
-        tok = m.group(0)
-        if tok in _STOPWORDS or len(tok) < 3:
-            continue
-        out.add(tok)
-    return out
 
 
 def run_upskill(jd: str, resume: Optional[str] = None) -> UpskillReport:
