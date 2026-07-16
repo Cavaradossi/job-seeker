@@ -81,12 +81,20 @@ def resolve(url: str) -> tuple[SiteAdapter, dict]:
 
 
 def recommend_platforms(region: str, portals: Optional[list] = None) -> list:
-    """Return portals whose ``regions`` include ``region`` (case-insensitive)."""
-    region = (region or "").upper()
+    """Return portals matching ``region`` (geo) OR ``region`` as a language/script.
+
+    ``region`` is matched against both ``regions`` (geo codes, e.g. CN/AU/SG) and
+    ``languages``/``scripts`` (e.g. ar/he/ru/ja/fr) — case-insensitive — so a user
+    can ask "what portals serve Arabic?" not just "what serves SG?". ``global``
+    always matches.
+    """
+    q = (region or "").lower()
     out = []
     for portal in (portals or _load_portals()):
-        regions = [r.upper() for r in portal.get("regions", [])]
-        if region in regions or "GLOBAL" in regions:
+        regions = [r.lower() for r in portal.get("regions", [])]
+        langs = [l.lower() for l in portal.get("languages", [])]
+        scripts = [s.lower() for s in portal.get("scripts", [])]
+        if (q in regions or q in langs or q in scripts or "global" in regions):
             out.append(portal)
     return out
 
@@ -96,16 +104,19 @@ def _host_of(url: str) -> str:
     return m.group(1).lower() if m else (url or "").lower()
 
 
-def add_portal(url: str, name: Optional[str] = None) -> dict:
+def add_portal(url: str, name: Optional[str] = None,
+               languages: Optional[list] = None,
+               scripts: Optional[list] = None) -> dict:
     """Build a new portal dict for ``url`` (does not persist — CLI handles that).
 
     The adapter key defaults to ``generic``; only ``boss_zhipin`` / ``linkedin``
-    get a dedicated adapter, which the caller can override after review.
+    get a dedicated adapter, which the caller can override after review. Optional
+    ``languages`` / ``scripts`` let the portal be discovered by language too.
     """
     host = _host_of(url)
     clean = host.split(".")[-2] if "." in host else host
     pid = re.sub(r"[^a-z0-9]", "_", clean).strip("_") or "portal"
-    return {
+    entry = {
         "id": pid,
         "name": name or host,
         "url_patterns": [host],
@@ -113,6 +124,11 @@ def add_portal(url: str, name: Optional[str] = None) -> dict:
         "tos_blocks_automation": False,
         "adapter": "generic",
     }
+    if languages:
+        entry["languages"] = list(languages)
+    if scripts:
+        entry["scripts"] = list(scripts)
+    return entry
 
 
 __all__ = [

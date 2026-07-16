@@ -138,6 +138,12 @@ def main(argv=None) -> int:
                          "(optionally --write-portal to append). Lowers the PR bar.")
     ap.add_argument("--write-portal", action="store_true",
                     help="with --add-portal: append the generated entry to portals.yaml")
+    ap.add_argument("--portal-languages", metavar="LANG",
+                    help="with --add-portal: comma-separated language tags "
+                         "(e.g. zh,en,ar,he,ru) for language-aware discovery")
+    ap.add_argument("--portal-scripts", metavar="SCRIPT",
+                    help="with --add-portal: comma-separated writing systems "
+                         "(e.g. latin,arabic,cyrillic,han)")
     ap.add_argument("--upskill", metavar="JD",
                     help="skill-gap analysis: JD (URL or file) vs your resume. "
                          "Optional --resume <tex> to scope the gap.")
@@ -166,12 +172,18 @@ def main(argv=None) -> int:
 
     # ---- standalone: scaffold a new portal entry ----
     if args.add_portal:
-        entry = add_portal(args.add_portal)
+        langs = [s.strip() for s in (args.portal_languages or "").split(",") if s.strip()]
+        scripts = [s.strip() for s in (args.portal_scripts or "").split(",") if s.strip()]
+        entry = add_portal(args.add_portal, languages=langs or None, scripts=scripts or None)
         print("[apply] generated portals.yaml entry:")
         print("  - id: " + entry["id"])
         print(f"    name: {entry['name']}")
         print(f"    url_patterns: {entry['url_patterns']}")
         print(f"    regions: {entry['regions']}")
+        if "languages" in entry:
+            print(f"    languages: {entry['languages']}")
+        if "scripts" in entry:
+            print(f"    scripts: {entry['scripts']}")
         print(f"    tos_blocks_automation: {entry['tos_blocks_automation']}")
         print(f"    adapter: {entry['adapter']}")
         if args.write_portal:

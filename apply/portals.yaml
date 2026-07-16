@@ -10,7 +10,11 @@
 #   id             stable identifier (used in logs / tests)
 #   name           human-readable name
 #   url_patterns   substrings matched against the JD URL (case-insensitive)
-#   regions        ISO-ish region codes this portal primarily serves
+#   regions        ISO-ish region codes this portal primarily serves (geo)
+#   languages      (optional) BCP-47-ish language tags, e.g. [zh, en, ar, he, ru]
+#   scripts        (optional) writing systems, e.g. [latin, arabic, cyrillic]
+#                   `recommend_platforms` matches on regions OR languages OR scripts,
+#                   so users can ask "what serves Arabic?" not just "what serves MA?".
 #   tos_blocks_automation  true => apply degrades to open-page + show-data
 #   adapter        Python adapter key in apply/adapters/registry.py
 #                   ("generic" = the built-in GenericAdapter)
@@ -22,6 +26,8 @@ platforms:
     name: Boss直聘
     url_patterns: ["zhipin.com", "boss.zhipin"]
     regions: [CN]
+    languages: [zh]
+    scripts: [han]
     tos_blocks_automation: true
     adapter: boss_zhipin
 
@@ -29,6 +35,8 @@ platforms:
     name: 猎聘
     url_patterns: ["liepin.com"]
     regions: [CN]
+    languages: [zh]
+    scripts: [han]
     tos_blocks_automation: false
     adapter: generic
 
@@ -36,6 +44,8 @@ platforms:
     name: 前程无忧
     url_patterns: ["51job.com", "51job"]
     regions: [CN]
+    languages: [zh]
+    scripts: [han]
     tos_blocks_automation: false
     adapter: generic
 
@@ -44,6 +54,8 @@ platforms:
     name: LinkedIn
     url_patterns: ["linkedin.com/jobs", "linkedin.com"]
     regions: [global]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: true
     adapter: linkedin
 
@@ -51,6 +63,8 @@ platforms:
     name: Greenhouse ATS
     url_patterns: ["boards.greenhouse.io", "greenhouse.io"]
     regions: [global]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: false
     adapter: generic
 
@@ -58,6 +72,8 @@ platforms:
     name: Lever ATS
     url_patterns: ["jobs.lever.co", "lever.co"]
     regions: [global]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: false
     adapter: generic
 
@@ -65,6 +81,8 @@ platforms:
     name: Workday ATS
     url_patterns: ["myworkdayjobs.com", "wd3.myworkday.com", "workday.com"]
     regions: [global]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: false
     adapter: generic
 
@@ -73,6 +91,8 @@ platforms:
     name: Seek
     url_patterns: ["seek.com.au", "seek.co.nz"]
     regions: [AU, NZ]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: false
     adapter: generic
 
@@ -80,6 +100,8 @@ platforms:
     name: Indeed Australia
     url_patterns: ["au.indeed.com", "indeed.com.au"]
     regions: [AU]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: false
     adapter: generic
 
@@ -88,6 +110,8 @@ platforms:
     name: Reed
     url_patterns: ["reed.co.uk"]
     regions: [GB]
+    languages: [en]
+    scripts: [latin]
     tos_blocks_automation: false
     adapter: generic
 
@@ -96,5 +120,7 @@ platforms:
     name: MyCareersFuture
     url_patterns: ["mycareersfuture.gov.sg"]
     regions: [SG]
+    languages: [en, zh]
+    scripts: [latin, han]
     tos_blocks_automation: false
     adapter: generic
